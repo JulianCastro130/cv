@@ -176,8 +176,9 @@
   addEventListener("keydown", function(e){
     if (e.defaultPrevented || e.ctrlKey || e.altKey || e.metaKey) return;
     var tg = e.target;
-    if (tg && tg.closest && tg.closest("input,select,textarea,button,[contenteditable]")) return;
+    if (tg && tg.closest && tg.closest("input,select,textarea,[contenteditable]")) return;
     var k = e.key, d = 0, L;
+    if ((k === " " || k === "Enter") && tg && tg.closest && tg.closest("button")) return;   // buttons keep Space/Enter; other keys still step
     if (k === "ArrowDown" || k === "PageDown" || (k === " " && !e.shiftKey)) d = 1;
     else if (k === "ArrowUp" || k === "PageUp" || (k === " " && e.shiftKey)) d = -1;
     else if (k === "Home" || k === "End") {
