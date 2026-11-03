@@ -170,12 +170,13 @@
     .job h3{font-size:1.14em}
     .tag{padding:3px 12px}
     .btn{padding:11px 24px}
-    .meta{font-size:1em;margin-top:10px}
+    .meta{font-size:1em;margin-top:10px;text-wrap:balance}
     li{margin:7px 0}
     .tech{margin-top:14px}
     /* hero: name, role, meta, CTA on the left; decorative terminal on the right */
     #hero{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);grid-template-rows:repeat(5,auto);
-      column-gap:clamp(40px,5vw,80px);align-content:center;justify-content:normal;min-height:min(80vh,calc(100vh - 120px))}
+      column-gap:clamp(40px,5vw,80px);align-content:center;justify-content:normal;margin-top:0;
+      min-height:calc(100vh - var(--nav-height,100px) + 16px)}
     #hero>*{grid-column:1}
     #hero>.term{grid-column:2;grid-row:1/span 5;align-self:center}
     h1{font-size:clamp(72px,8vw,132px);line-height:.94;margin:4px 0 8px}
