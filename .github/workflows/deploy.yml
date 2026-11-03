@@ -1,0 +1,43 @@
+name: Deploy CV
+
+on:
+  push:
+    branches: [master, main]
+    paths: ["site/**", ".github/workflows/deploy.yml"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: No placeholders left
+        run: "! grep -rn 'YOUR-' site/"
+      - name: Validate HTML
+        run: |
+          pip install --quiet html5lib
+          python -c "import html5lib,sys; p=html5lib.HTMLParser(strict=True); p.parse(open('site/index.html',encoding='utf-8')); print('ok')"
+
+  deploy:
+    needs: check
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+      - id: deployment
+        uses: actions/deploy-pages@v4

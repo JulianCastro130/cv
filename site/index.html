@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Julián Castro — MuleSoft Developer</title>
+<meta name="description" content="Julián Castro: Mid-Level MuleSoft Developer & RPA Specialist, Full Stack Web Developer.">
+<style>
+  :root{
+    --bg:#010603; --fg:#39ff14; --dim:#27dc69; --faint:#0c6a2c; --hi:#9dff7a;
+    --panel:rgba(2,16,8,.82);
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth;scroll-padding-top:var(--nav-height,100px)}
+  body{margin:0;background:var(--bg);color:var(--fg);
+    font:16px/1.6 "Fira Code","Cascadia Code",Consolas,"Courier New",monospace}
+  #rain{position:fixed;inset:0;width:100%;height:100%;z-index:0;opacity:.22;pointer-events:none}
+  body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:2;
+    background:repeating-linear-gradient(to bottom,rgba(0,0,0,0) 0 2px,rgba(0,0,0,.18) 3px)}
+  /* neon: color stays lit, only the glow breathes (never fully off) */
+  @keyframes neon{0%,100%{text-shadow:0 0 2px currentColor,0 0 6px rgba(57,255,20,.55)}
+    50%{text-shadow:0 0 4px currentColor,0 0 14px #39ff14,0 0 28px rgba(57,255,20,.6)}}
+  @keyframes neonbig{0%,100%{text-shadow:0 0 6px #39ff14,0 0 18px rgba(57,255,20,.6)}
+    50%{text-shadow:0 0 10px #9dff7a,0 0 30px #39ff14,0 0 60px rgba(57,255,20,.75)}}
+  p,li,a,h2,h3,.tag,.when,.tech,.prompt,.meta,.k,.role,footer,.btn{animation:neon 3.6s ease-in-out infinite}
+  li:nth-child(2n),.tag:nth-child(2n),p:nth-of-type(2n){animation-duration:4.4s;animation-delay:-1.3s}
+  li:nth-child(3n),.tag:nth-child(3n),h3{animation-duration:5.2s;animation-delay:-2.6s}
+  h1{animation:neonbig 3s ease-in-out infinite}
+  main{position:relative;z-index:1;max-width:900px;margin:0 auto;padding:0 16px 80px;overflow-wrap:anywhere}
+  nav{position:sticky;top:0;z-index:3;background:rgba(2,10,4,.9);border-bottom:1px solid var(--faint);
+    display:flex;gap:6px 18px;flex-wrap:wrap;padding:10px 16px;justify-content:center;font-size:14px}
+  a{color:var(--fg);text-decoration:none}
+  a:hover,a:focus-visible{color:var(--bg);background:var(--fg);outline:none;animation:none;text-shadow:none}
+  a:focus-visible{outline:2px solid var(--hi);outline-offset:3px}
+  nav a::before{content:"./"; color:var(--dim)}
+  nav a:hover::before,nav a:focus-visible::before{color:var(--bg)}
+  section{margin-top:56px;background:var(--panel);border:1px solid var(--faint);padding:20px 22px;
+    box-shadow:0 0 22px rgba(0,255,106,.08)}
+  .prompt{color:var(--dim);margin:0 0 12px;font-size:14px}
+  .prompt b{color:var(--fg);font-weight:400}
+  h1,h2,h3{margin:0;font-weight:400}
+  h1{font-size:clamp(34px,8vw,64px);line-height:1.1;letter-spacing:.04em;color:var(--hi);
+    }
+  h2{font-size:18px;color:var(--hi);margin-bottom:14px}
+  h2::before{content:"## ";color:var(--dim)}
+  #hero{min-height:78vh;display:flex;flex-direction:column;justify-content:center;
+    background:transparent;border:0;box-shadow:none;padding:0}
+  .role{color:var(--fg);font-size:clamp(15px,2.6vw,20px);min-height:1.6em}
+  .cursor{display:inline-block;width:.6em;height:1.1em;background:var(--fg);vertical-align:-.2em;
+    animation:blink 1s steps(2) infinite}
+  @keyframes blink{50%{opacity:0}}
+  .meta{color:var(--dim);margin-top:18px}
+  .cta{display:flex;gap:12px;flex-wrap:wrap;margin-top:24px}
+  .btn{border:1px solid var(--fg);padding:8px 16px}
+  .job{margin-bottom:26px}
+  .job:last-child{margin-bottom:0}
+  .job header{display:flex;justify-content:space-between;gap:8px 16px;flex-wrap:wrap;margin-bottom:6px}
+  .job h3{color:var(--hi);font-size:16px}
+  .when{color:var(--dim);font-size:14px}
+  ul{margin:8px 0;padding:0;list-style:none}
+  li{padding-left:22px;position:relative;margin:5px 0}
+  li::before{content:">";position:absolute;left:0;color:var(--dim)}
+  .tech{color:var(--dim);font-size:14px;margin-top:8px}
+  .tech span{color:var(--fg)}
+  .tags{display:flex;flex-wrap:wrap;gap:8px;margin:6px 0 14px}
+  .tag{border:1px solid var(--faint);padding:1px 10px;font-size:14px;min-width:0;max-width:100%}
+  .skill-row{margin:12px 0}
+  .skill-row .k{color:var(--dim);font-size:14px;display:block}
+  .wip{color:var(--dim)}
+  footer{text-align:center;color:var(--dim);margin-top:48px;font-size:14px}
+  .sr{position:absolute;left:-9999px}
+  @media (prefers-reduced-motion:reduce){*{animation:none!important}.cursor{animation:none} html{scroll-behavior:auto}}
+  @media (max-width:520px){section{padding:16px}}
+</style>
+</head>
+<body>
+<canvas id="rain" aria-hidden="true"></canvas>
+<nav aria-label="Sections">
+  <a href="#about">about</a><a href="#experience">experience</a><a href="#certs">certs</a>
+  <a href="#skills">skills</a><a href="#contact">contact</a>
+</nav>
+
+<main>
+  <section id="hero">
+    <p class="prompt">root@neo:~$ <b>whoami</b></p>
+    <h1>JULIÁN CASTRO</h1>
+    <p class="role" aria-hidden="true"><span id="typed">Mid-Level MuleSoft Developer &amp; RPA Specialist</span><span class="cursor" aria-hidden="true"></span></p>
+    <p class="sr">Mid-Level MuleSoft Developer and RPA Specialist, Full Stack Web Developer</p>
+    <p class="meta">Buenos Aires, Argentina · Spanish (native) · English C1</p>
+    <div class="cta">
+      <a class="btn" href="#experience">[ enter the system ]</a>
+      <a class="btn" href="#contact">[ contact ]</a>
+    </div>
+  </section>
+
+  <section id="about">
+    <p class="prompt">root@neo:~$ <b>cat profile.txt</b></p>
+    <h2>Profile</h2>
+    <p>Integration developer with 3+ years of experience building end-to-end APIs on MuleSoft under an
+    API-led architecture, focused on the financial sector: core banking integration, asynchronous messaging
+    and business-critical batch processing. MuleSoft Certified Developer Level 1 and Level 2. Additional
+    experience in RPA (IDP and OCR) and full stack development.</p>
+    <p class="wip">Currently expanding into AI and agentic integration: learning MuleSoft Agent Fabric
+    (MCP and A2A connectors, Agent Broker orchestration) to expose enterprise APIs as tools for AI agents,
+    and completing the Agentforce learning path on Trailhead.</p>
+  </section>
+
+  <section id="experience">
+    <p class="prompt">root@neo:~$ <b>git log --career</b></p>
+    <h2>Professional Experience</h2>
+
+    <article class="job">
+      <header><h3>MuleSoft &amp; RPA Developer — CloudGaia</h3><span class="when">Remote · Feb 2024 – Present</span></header>
+      <ul>
+        <li>Built APIs from the ground up under an API-led architecture (System, Process and Experience layers): RAML contract design, implementation, testing, deployment and maintenance.</li>
+        <li>Integrated Oracle FLEXCUBE core banking over SOAP, IBM MQ messaging, Azure Key Vault, Azure Blob Storage, Salesforce, SAP and SQL databases.</li>
+        <li>Designed and implemented error-handling, retry and compensation strategies for high-volume, business-critical financial batch processes.</li>
+        <li>Investigated production incidents through logs and traces, proposing and delivering the corresponding fixes.</li>
+        <li>Contributed to RPA projects focused on IDP and OCR.</li>
+        <li>Independently coordinated production deployments and maintained CI/CD pipelines.</li>
+      </ul>
+      <p class="tech"><span>Technologies:</span> Anypoint Studio &amp; Platform, DataWeave, RAML, MUnit, Anypoint Exchange, MuleSoft RPA Builder, IBM MQ, Oracle FLEXCUBE, Jenkins, AWS, Azure, GitHub, GitLab, Jira.</p>
+    </article>
+
+    <article class="job">
+      <header><h3>MuleSoft Developer — Baufest</h3><span class="when">Remote · May 2023 – Mar 2024</span></header>
+      <ul>
+        <li>Implemented the process layer for the migration from Q4T to Ivy Mobility with an SAP backend.</li>
+        <li>Developed Java and Groovy components deployed to CloudHub.</li>
+        <li>Took part in requirements analysis and communicated directly with the client.</li>
+        <li>Automated tasks and implemented error handling.</li>
+      </ul>
+      <p class="tech"><span>Technologies:</span> MuleSoft, Java, Groovy, DataWeave, Solace, CloudHub, AWS, Jira, Git.</p>
+    </article>
+
+    <article class="job">
+      <header><h3>Full Stack Developer — Andromeda (MVP)</h3><span class="when">Remote · Apr 2023 – May 2023</span></header>
+      <ul>
+        <li>Developed a blockchain platform for traceability in critical industries.</li>
+        <li>Created a token and connected it to the Polkadot blockchain through Gem Tech.</li>
+        <li>Implemented a REST API in Go and a Next.js frontend.</li>
+      </ul>
+      <p class="tech"><span>Technologies:</span> Go, Next.js, Postgres, Solidity, Git, Gem Tech.</p>
+    </article>
+  </section>
+
+  <section id="certs">
+    <p class="prompt">root@neo:~$ <b>ls certifications/ education/</b></p>
+    <h2>Certifications</h2>
+    <ul>
+      <li>MuleSoft Certified Developer — Level 1 (MCD)</li>
+      <li>MuleSoft Certified Developer — Level 2 (MCD II)</li>
+      <li>Salesforce Certified Agentforce Specialist <span class="wip">(in progress)</span></li>
+      <li>MuleSoft Certified Integration Architect — Level 1 <span class="wip">(in progress)</span></li>
+    </ul>
+    <h2 style="margin-top:22px">Education</h2>
+    <ul><li>Henry Bootcamp — Full Stack Web Developer, 2023 · 700 hours of hands-on and theoretical training.</li></ul>
+  </section>
+
+  <section id="skills">
+    <p class="prompt">root@neo:~$ <b>./skills --list</b></p>
+    <h2>Technical Skills</h2>
+    <div class="skill-row"><span class="k">Languages</span><div class="tags"><span class="tag">Java 17</span><span class="tag">DataWeave</span><span class="tag">JavaScript</span><span class="tag">SQL</span></div></div>
+    <div class="skill-row"><span class="k">Integration</span><div class="tags"><span class="tag">MuleSoft Anypoint Studio &amp; Platform</span><span class="tag">RAML</span><span class="tag">MUnit</span><span class="tag">API-led Connectivity</span><span class="tag">REST</span><span class="tag">SOAP</span><span class="tag">IBM MQ</span><span class="tag">Solace</span></div></div>
+    <div class="skill-row"><span class="k">Frameworks / Libraries</span><div class="tags"><span class="tag">Spring Boot</span><span class="tag">Node.js</span><span class="tag">Express</span><span class="tag">Next.js</span><span class="tag">Microsoft 365</span></div></div>
+    <div class="skill-row"><span class="k">Automation</span><div class="tags"><span class="tag">MuleSoft RPA Builder</span><span class="tag">IDP</span><span class="tag">OCR</span></div></div>
+    <div class="skill-row"><span class="k">Infrastructure</span><div class="tags"><span class="tag">AWS</span><span class="tag">Azure</span><span class="tag">CloudHub</span><span class="tag">Jenkins</span></div></div>
+    <div class="skill-row"><span class="k">Version control &amp; tracking</span><div class="tags"><span class="tag">GitHub</span><span class="tag">GitLab</span><span class="tag">Jira</span></div></div>
+  </section>
+
+  <section id="contact">
+    <p class="prompt">root@neo:~$ <b>./connect --to julian</b></p>
+    <h2>Contact</h2>
+    <ul>
+      <li>Email: <a href="mailto:cococastro619@gmail.com">cococastro619@gmail.com</a></li>
+      <li>LinkedIn: <a href="https://www.linkedin.com/in/julianmariacastro/" rel="noopener">linkedin.com/in/julianmariacastro</a></li>
+      <li>GitHub: <a href="https://github.com/JulianCastro130" rel="noopener">github.com/JulianCastro130</a></li>
+    </ul>
+  </section>
+
+  <footer>Wake up, recruiter… the Matrix has you. <span class="cursor" aria-hidden="true"></span></footer>
+</main>
+
+<script>
+(function(){
+  var motion = window.matchMedia("(prefers-reduced-motion: reduce)");
+  var reduce = motion.matches;
+  var typingTimer, rainTimer;
+  var nav = document.querySelector("nav");
+  function measureNav(){
+    document.documentElement.style.setProperty("--nav-height", (nav.getBoundingClientRect().height + 16) + "px");
+  }
+  measureNav();
+  if (window.ResizeObserver) new ResizeObserver(measureNav).observe(nav);
+  else addEventListener("resize", measureNav);
+
+  // Typed role line
+  var lines = ["Mid-Level MuleSoft Developer & RPA Specialist","Full Stack Web Developer","API-led integration · Core banking · AI agents"];
+  var el = document.getElementById("typed");
+  function startTyping(){
+    clearTimeout(typingTimer);
+    if (reduce) { el.textContent = lines[0] + " · " + lines[1]; return; }
+    var li = 0, ci = lines[0].length, del = false;
+    (function tick(){
+      var s = lines[li];
+      el.textContent = s.slice(0, ci);
+      if (!del && ci < s.length) { ci++; typingTimer = setTimeout(tick, 45); }
+      else if (!del) { del = true; typingTimer = setTimeout(tick, 1600); }
+      else if (ci > 1) { ci--; typingTimer = setTimeout(tick, 20); }
+      else { del = false; li = (li + 1) % lines.length; typingTimer = setTimeout(tick, 300); }
+    })();
+  }
+  startTyping();
+  motion.addEventListener("change", function(event){
+    reduce = event.matches;
+    startTyping();
+    startRain();
+  });
+
+  // Digital rain
+  var c = document.getElementById("rain"), g = c.getContext("2d");
+  if (!g) return;
+  var chars = "ｱｲｳｴｵｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄﾅﾆﾇﾈﾉﾊﾋﾌﾍﾎﾏﾐﾑﾒﾓﾔﾕﾖﾗﾘﾙﾚﾛﾜﾝ0123456789<>/{}=".split("");
+  var size = 16, cols, drops;
+  function resize(){
+    c.width = innerWidth; c.height = innerHeight;
+    cols = Math.ceil(c.width / size);
+    drops = Array.from({length: cols}, function(){ return Math.random() * -50; });
+    g.fillStyle = "#010603"; g.fillRect(0, 0, c.width, c.height);
+  }
+  addEventListener("resize", resize); resize();
+  function draw(){
+    g.fillStyle = "rgba(2,10,4,.08)"; g.fillRect(0, 0, c.width, c.height);
+    g.font = size + "px monospace";
+    for (var i = 0; i < cols; i++){
+      var ch = chars[(Math.random() * chars.length) | 0];
+      g.fillStyle = Math.random() > .975 ? "#d8ffe6" : "#39ff14";
+      g.fillText(ch, i * size, drops[i] * size);
+      if (drops[i] * size > c.height && Math.random() > .975) drops[i] = 0;
+      drops[i] += reduce ? 0 : 1;
+    }
+  }
+  function startRain(){
+    clearInterval(rainTimer);
+    if (!g) return;
+    if (reduce) { g.fillStyle = "#020a04"; g.fillRect(0, 0, c.width, c.height); }
+    else rainTimer = setInterval(draw, 55);
+  }
+  startRain();
+})();
+</script>
+</body>
+</html>
