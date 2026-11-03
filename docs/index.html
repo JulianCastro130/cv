@@ -138,6 +138,8 @@
     :where(html:not(.motion-full):not(.motion-reduced)) .cursor{animation:none}
     html:not(.motion-full):not(.motion-reduced){scroll-behavior:auto}
   }
+  /* focusing the sticky nav must not scroll the page (html scroll-padding-top would count it as obscured) */
+  nav,nav *{scroll-margin-top:-400px;scroll-margin-bottom:-400px}
   .motion-ctl{white-space:nowrap;color:var(--dim)}
   .motion-ctl button{font:inherit;color:var(--dim);background:none;border:1px solid var(--faint);padding:0 8px;margin:0 2px;cursor:pointer;line-height:1.4}
   .motion-ctl button:hover{color:var(--fg);border-color:var(--fg)}
