@@ -10,6 +10,7 @@
     --bg:#010603; --fg:#39ff14; --dim:#27dc69; --faint:#0c6a2c; --hi:#9dff7a;
     --panel:rgba(2,16,8,.82);
   }
+  :root,*{forced-color-adjust:none}
   *{box-sizing:border-box}
   html{scroll-behavior:smooth;scroll-padding-top:var(--nav-height,100px)}
   body{margin:0;background:var(--bg);color:var(--fg);
@@ -69,7 +70,7 @@
   .wip{color:var(--dim)}
   footer{text-align:center;color:var(--dim);margin-top:48px;font-size:14px}
   .sr{position:absolute;left:-9999px}
-  @media (prefers-reduced-motion:reduce){*{animation:none!important}.cursor{animation:none} html{scroll-behavior:auto}}
+  @media (prefers-reduced-motion:reduce){*{animation-duration:9s!important}.cursor{animation:none} html{scroll-behavior:auto}}
   @media (max-width:520px){section{padding:16px}}
 </style>
 </head>
@@ -237,14 +238,13 @@
       g.fillStyle = Math.random() > .975 ? "#d8ffe6" : "#39ff14";
       g.fillText(ch, i * size, drops[i] * size);
       if (drops[i] * size > c.height && Math.random() > .975) drops[i] = 0;
-      drops[i] += reduce ? 0 : 1;
+      drops[i] += 1;
     }
   }
   function startRain(){
     clearInterval(rainTimer);
     if (!g) return;
-    if (reduce) { g.fillStyle = "#020a04"; g.fillRect(0, 0, c.width, c.height); }
-    else rainTimer = setInterval(draw, 55);
+    rainTimer = setInterval(draw, reduce ? 140 : 55);
   }
   startRain();
 })();
