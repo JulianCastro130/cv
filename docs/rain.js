@@ -8,11 +8,12 @@
   var g = c && c.getContext("2d");
   if (!g) return;
   var M = window.motion;
-  var STEP = 20, LIMIT = 10000, FULL = 50, CALM = 140;
-  // The pen's reset test (y > 100 + random*10000, drawn fresh every tick) makes survival to depth y fall off roughly as
-  // exp(-y^2 / (40 * 10000)), so the pen is dense at its small default canvas (500x200) and a tall screen (its canvas follows
-  // body.offsetHeight) loses the bottom: on 1080px only ~5% of the columns reach it (measured bottom/top coverage 0.2).
-  // Only the 10000 constant is scaled, linearly by height (H/200): measured bottom/top 0.75 at 1920x1080.
+  var STEP = 20, K = 2500, FULL = 50, CALM = 140;
+  // Reset rule. The pen resets a column when y > 100 + random*10000, drawn fresh every tick, so a column can reset anywhere and
+  // survival to depth y falls off like exp(-y^2 / 400000). That is fine on the pen's 500x200 canvas, but on a tall screen only ~5%
+  // of the columns reach the bottom (measured bottom/top coverage 0.2 at 1920x1080 with the literal rule). Same form, different anchor:
+  // reset only past the bottom edge, y > H + random*K, so every row gets the same number of passes. K = how long a column stays
+  // off-screen, which is what breaks up the first wall's sync (K >= 1000 desyncs, 250-500 leaves visible bands; 2500 chosen).
   var W = 0, H = 0, dpr = 1, cols = 0, ypos = [], ready = false, timer = 0;
   function calm(){ return !!(M && M.reduced()); }
 
@@ -31,7 +32,6 @@
     var n = Math.floor(w / STEP) + 1;
     if (n < ypos.length) ypos.length = n;
     while (ypos.length < n) ypos.push(0);
-    LIMIT = 10000 * Math.max(H, 200) / 200;
     cols = n; ready = true;
   }
 
@@ -43,7 +43,7 @@
     for (var i = 0; i < cols; i++){
       var y = ypos[i];
       g.fillText(String.fromCharCode(32 + Math.random() * 95), i * STEP, y);
-      if (y > 100 + Math.random() * LIMIT) ypos[i] = 0; else ypos[i] = y + STEP;
+      if (y > H + Math.random() * K) ypos[i] = 0; else ypos[i] = y + STEP;
     }
   }
 
