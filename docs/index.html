@@ -71,12 +71,27 @@
       e.stopImmediatePropagation();
       if (prevent && e.cancelable) e.preventDefault();
     }
-    addEventListener("wheel", function(e){ if (!e.ctrlKey) skip(e, true); }, {capture: true, passive: false});
+    // The input that skips must not also act: after a wheel skip the rest of that swipe / inertia is swallowed until a pause of
+    // 400 ms or more; after a key skip the key's auto-repeats are swallowed until its keyup. (Touch: the skipping touchstart is
+    // cancelled, which also cancels that gesture's scroll and click.)
+    var wheelHold = false, lastWheel = 0, keyHold = null;
+    function swallow(e){ e.stopImmediatePropagation(); if (e.cancelable) e.preventDefault(); }
+    addEventListener("wheel", function(e){
+      if (e.ctrlKey) return;
+      var t = performance.now();
+      if (!done) { skip(e, true); wheelHold = true; lastWheel = t; return; }
+      if (!wheelHold) return;
+      if (t - lastWheel >= 400) { wheelHold = false; return; }
+      lastWheel = t; swallow(e);
+    }, {capture: true, passive: false});
     addEventListener("keydown", function(e){
-      if (done || /^(Shift|Control|Alt|Meta|AltGraph|CapsLock|OS)$/.test(e.key)) return;
+      if (done) { if (keyHold && e.key === keyHold && e.repeat) swallow(e); return; }
+      if (/^(Shift|Control|Alt|Meta|AltGraph|CapsLock|OS)$/.test(e.key)) return;
       var shortcut = e.ctrlKey || e.metaKey || e.altKey || /^F[0-9]+$/.test(e.key);
+      if (!shortcut) keyHold = e.key;
       skip(e, !shortcut);
     }, true);
+    addEventListener("keyup", function(e){ if (e.key === keyHold) keyHold = null; }, true);
     addEventListener("click", function(e){ skip(e, true); }, true);
     addEventListener("touchstart", function(e){ skip(e, true); }, {capture: true, passive: false});
   } catch (err) { reveal(); }
