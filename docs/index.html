@@ -278,12 +278,12 @@
       node.parentNode.replaceChild(span, node);
       span.textContent = text;
       var y = span.getBoundingClientRect().top + scrollY;
-      var offs = []; for (var i = 0; i < text.length; i++) offs.push(Math.random() * 260);
+      var offs = []; for (var i = 0; i < text.length; i++) offs.push(Math.random() * 600);
       span.style.visibility = "hidden";
-      return {span: span, text: text, delay: Math.min(y, 3000) * 0.75, offs: offs, done: false, end: 0};
+      return {span: span, text: text, delay: Math.min(y, 3000) * 1.1, offs: offs, done: false, end: 0};
     });
     items.forEach(function(it){
-      it.end = it.delay + Math.min(it.text.length * 14, 700) + 260;
+      it.end = it.delay + Math.min(it.text.length * 20, 900) + 600;
     });
     done();                       // reveal <main>; every text node is hidden or scrambled
     var t0 = performance.now(), last = 0;
@@ -299,7 +299,7 @@
           var out = "", tx = it.text;
           for (var i = 0; i < tx.length; i++) {
             var c = tx[i];
-            out += (/\s/.test(c) || t >= it.delay + Math.min(i * 14, 700) + it.offs[i]) ? c : G[(Math.random() * G.length) | 0];
+            out += (/\s/.test(c) || t >= it.delay + Math.min(i * 20, 900) + it.offs[i]) ? c : G[(Math.random() * G.length) | 0];
           }
           it.span.textContent = out;
           it.span.style.visibility = "visible";
