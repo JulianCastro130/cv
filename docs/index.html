@@ -98,6 +98,23 @@
   .sr{position:absolute;left:-9999px}
   @media (prefers-reduced-motion:reduce){*{animation-duration:6s!important}.cursor{animation:none} html{scroll-behavior:auto}}
   @media (max-width:520px){section{padding:16px}}
+  @media print{
+    html.pre main{visibility:visible}
+    *,*::before,*::after{animation:none!important;text-shadow:none!important;box-shadow:none!important;
+      opacity:1!important;filter:none!important;transition:none!important}
+    html,body{background:#fff!important;color:#000!important}
+    body{font-size:11pt;line-height:1.4}
+    #rain,nav,.cursor,.cta,body::after,.sr{display:none!important}
+    main{max-width:none;padding:0;overflow-wrap:normal}
+    main span{visibility:visible!important}
+    section{background:#fff!important;border:0;border-top:1px solid #999;padding:10px 0;margin-top:14px}
+    #hero{min-height:0;padding:0;border:0}
+    h1,h2,h3,p,li,a,.prompt,.prompt b,.when,.tech,.tech span,.meta,.k,.role,.wip,footer,.tag,li::before,h2::before{color:#000!important;background:none!important}
+    .tag{border-color:#666}
+    a[href^="http"]::after{content:" (" attr(href) ")";font-size:9pt;word-break:break-all}
+    .job,.tag,li{break-inside:avoid;page-break-inside:avoid}
+    h2,h3{break-after:avoid;page-break-after:avoid}
+  }
 </style>
 </head>
 <body>
@@ -238,6 +255,9 @@
     })();
   }
   startTyping();
+  // print: show the full role line instead of whatever the typewriter is on
+  addEventListener("beforeprint", function(){ clearTimeout(typingTimer); el.textContent = lines[0] + " · " + lines[1]; });
+  addEventListener("afterprint", startTyping);
   motion.addEventListener("change", function(event){
     reduce = event.matches;
     startTyping();
@@ -321,6 +341,10 @@
         {opacity:.4, filter:"brightness(1.4)", offset:.55},
         {opacity:1, filter:"brightness(1)", offset:1}
       ], {duration: 800, delay: d, fill: "backwards", easing: "linear"});
+    });
+    // print mid-intro: finish decoding so the text is complete
+    addEventListener("beforeprint", function(){
+      items.forEach(function(it){ it.span.textContent = it.text; it.span.style.visibility = ""; it.done = true; });
     });
     done();                       // reveal <main>; every text node is hidden or scrambled
     var t0 = performance.now(), last = 0;
