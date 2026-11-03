@@ -45,10 +45,14 @@ function run(THREE, canvas){
   var FOV = 60, TAN = Math.tan(FOV * Math.PI / 360);
   // Dense fine rain: glyphs keep a roughly constant apparent size (14-24 CSS px quads, about 10-17 px of glyph)
   // at every depth; depth only changes brightness, size inside that range and (via the column) fall speed.
-  // Desktop: up to 8000 instances (one draw call, motion in the vertex shader); phone keeps ~800.
-  var CAP = phone ? 800 : 8000, MAXLEN = phone ? 18 : 60;
-  var COLS = Math.max(phone ? 30 : 60, Math.min(Math.round(innerWidth / (phone ? 9 : 10)), Math.floor(CAP / (phone ? 14 : 40))));
-  var LEN = Math.max(12, Math.min(MAXLEN, Math.floor(CAP / COLS)));
+  // Desktop: up to 10000 instances (one draw call, motion in the vertex shader); phone keeps ~800.
+  var CAP = phone ? 800 : 10000;
+  // Phone: one trail per column (as before). Desktop: x slots about one glyph apart (W/14), DROPS evenly phased
+  // drops per slot on different depths, so nearly every slot has a lit trail at any moment.
+  var DROPS = phone ? 1 : 4;
+  var COLS = phone ? Math.max(30, Math.min(Math.round(innerWidth / 9), Math.floor(CAP / 14)))
+                   : Math.max(40, Math.round(innerWidth / 14));
+  var LEN = phone ? Math.max(12, Math.min(18, Math.floor(CAP / COLS))) : Math.max(8, Math.min(22, Math.floor(CAP / (COLS * DROPS))));
   var live = false, dead = false, raf = 0;
 
   var renderer;
@@ -71,20 +75,27 @@ function run(THREE, canvas){
   tex.generateMipmaps = true;
   tex.minFilter = THREE.LinearMipmapLinearFilter; tex.magFilter = THREE.LinearFilter;
   tex.anisotropy = Math.min(4, renderer.capabilities.getMaxAnisotropy());
-
-  // one instance = one glyph; instances are ordered column by column. Column x slots are stratified (even coverage
-  // across the width) and shuffled, so dropping the last columns under load thins the rain evenly.
-  var n = COLS * LEN;
+  // one instance = one glyph. Order is drop-major (drop, slot, trail), so cutting the instance count under load keeps
+  // every slot and removes whole evenly spaced drops. Phone (one drop) shuffles its stratified slots instead.
+  var n = DROPS * COLS * LEN;
   var aCol = new Float32Array(n * 4), aIdx = new Float32Array(n * 2);
   var slots = []; for (var q = 0; q < COLS; q++) slots.push(q);
-  for (q = COLS - 1; q > 0; q--) { var j = (Math.random() * (q + 1)) | 0, tmp = slots[q]; slots[q] = slots[j]; slots[j] = tmp; }
+  if (DROPS === 1) for (q = COLS - 1; q > 0; q--) { var j = (Math.random() * (q + 1)) | 0, tmp = slots[q]; slots[q] = slots[j]; slots[j] = tmp; }
+  var order = [0, 2, 1, 3];                       // drop phase order: the first two drops are already evenly spaced
+  var colX = [], colSpeed = [];
   for (var c = 0; c < COLS; c++){
-    var x = ((slots[c] + Math.random()) / COLS) * 2 - 1, d0 = 8 + Math.random() * 52;
-    var speed = 110 + Math.random() * 150, phase = Math.random();      // px/s
-    for (var k = 0; k < LEN; k++){
-      var i = c * LEN + k;
-      aCol.set([x, d0, speed, phase], i * 4);
-      aIdx.set([k, Math.random()], i * 2);
+    colX.push(DROPS === 1 ? ((slots[c] + Math.random()) / COLS) * 2 - 1 : ((c + .5 + (Math.random() - .5) * .7) / COLS) * 2 - 1);
+    colSpeed.push(110 + Math.random() * 150);      // px/s
+  }
+  for (var dr = 0; dr < DROPS; dr++){
+    for (c = 0; c < COLS; c++){
+      var d0 = 8 + Math.random() * 52, phase = DROPS === 1 ? Math.random() : (order[dr] + Math.random() * .2) / DROPS;
+      var speed = colSpeed[c] * (DROPS === 1 ? 1 : .9 + Math.random() * .2);
+      for (var k = 0; k < LEN; k++){
+        var i = (dr * COLS + c) * LEN + k;
+        aCol.set([colX[c], d0, speed, phase], i * 4);
+        aIdx.set([k, Math.random()], i * 2);
+      }
     }
   }
   var geo = new THREE.InstancedBufferGeometry();
@@ -128,9 +139,9 @@ function run(THREE, canvas){
       "  float fade=1.0-k/uLen;",
       "  float df=smoothstep(8.0,12.0,dd)*(1.0-smoothstep(54.0,60.0,dd));",
       "  float spark=step(0.965,hash(r+floor(uTime*2.0)));",
-      "  float depthB=mix(1.0,0.4,t);",
+      "  float depthB=mix(1.0,0.68,t);",
       "  vec3 col=mix(vec3(0.22,1.0,0.08)*(0.3+0.7*fade),vec3(0.85,1.0,0.9),max(step(k,0.5),spark*0.7));",
-      "  float al=(k<0.5?1.0:pow(fade,1.1)*0.85)*depthB*df;",
+      "  float al=(k<0.5?1.0:mix(0.22,0.85,pow(fade,1.1)))*depthB*df;",
       "  vColor=vec4(col,al);",
       "}"
     ].join("\n"),
@@ -181,7 +192,7 @@ function run(THREE, canvas){
     if (fps >= 24) { bad = 0; return; }
     if (++bad < 2) return;
     bad = 0; warm = 0;
-    if (!cut) { cut = true; geo.instanceCount = Math.floor(COLS * 0.5) * LEN; }
+    if (!cut) { cut = true; geo.instanceCount = DROPS > 1 ? (DROPS / 2) * COLS * LEN : Math.floor(COLS * 0.5) * LEN; }
     else fallback();
   }
 
