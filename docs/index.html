@@ -6,7 +6,7 @@
 <title>Julián Castro — MuleSoft Developer</title>
 <meta name="description" content="Julián Castro: Mid-Level MuleSoft Developer & RPA Specialist, Full Stack Web Developer.">
 <link rel="canonical" href="https://juliancastro130.github.io/cv/">
-<meta name="theme-color" content="#010603">
+<meta name="theme-color" content="#000000">
 <meta property="og:title" content="Julián Castro — MuleSoft Developer">
 <meta property="og:description" content="Julián Castro: Mid-Level MuleSoft Developer &amp; RPA Specialist, Full Stack Web Developer.">
 <meta property="og:type" content="website">
@@ -16,8 +16,7 @@
 <meta name="twitter:title" content="Julián Castro — MuleSoft Developer">
 <meta name="twitter:description" content="Julián Castro: Mid-Level MuleSoft Developer &amp; RPA Specialist, Full Stack Web Developer.">
 <meta name="twitter:image" content="https://juliancastro130.github.io/cv/og.png">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='10' fill='%23010603'/%3E%3Ctext x='32' y='47' font-family='monospace' font-size='44' font-weight='bold' text-anchor='middle' fill='%2339ff14'%3EJ%3C/text%3E%3C/svg%3E">
-<script>document.documentElement.className+=' pre'</script>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='10' fill='%23000'/%3E%3Ctext x='32' y='47' font-family='monospace' font-size='44' font-weight='bold' text-anchor='middle' fill='%230f0'%3EJ%3C/text%3E%3C/svg%3E">
 <script>
 // Single source of truth for reduced motion: window.motion. Default (nothing stored) follows the OS
 // preference live; an explicit choice is stored in localStorage (in memory only if storage is blocked).
@@ -45,71 +44,70 @@
   root.classList.toggle("motion-reduced", reduced()); root.classList.toggle("motion-full", !reduced());
 })();
 </script>
-<style>
-  :root{
-    --bg:#010603; --fg:#39ff14; --dim:#27dc69; --faint:#0c6a2c; --hi:#9dff7a;
-    --panel:rgba(2,16,8,.82);
+<script>
+// Opening: black screen and the rain alone (3500 ms; 2000 ms in calm/reduced mode), then nav and main fade in once.
+// Skippable by click, tap, wheel or any key except a lone modifier; the skipping input does nothing else.
+// Only a hash in the URL skips it. If anything fails the CV still appears (timer first, plus a CSS fallback at 7 s).
+// Without JS the class is never added.
+(function(){
+  var root = document.documentElement, done = false, timer = 0;
+  function reveal(){
+    if (done) return; done = true; clearTimeout(timer);
+    root.classList.remove("opening"); root.classList.add("revealing");
+    var m = document.querySelector("main");
+    function end(){ root.classList.remove("revealing"); }
+    if (m) m.addEventListener("animationend", end);
+    setTimeout(end, 1200);
   }
+  window.openingReveal = reveal;
+  try {
+    if (location.hash) return;
+    var calm = window.motion && window.motion.reduced();
+    timer = setTimeout(reveal, calm ? 2000 : 3500);
+    root.classList.add("opening");
+    function skip(e, prevent){
+      if (done) return;
+      reveal();
+      e.stopImmediatePropagation();
+      if (prevent && e.cancelable) e.preventDefault();
+    }
+    addEventListener("wheel", function(e){ if (!e.ctrlKey) skip(e, true); }, {capture: true, passive: false});
+    addEventListener("keydown", function(e){
+      if (done || /^(Shift|Control|Alt|Meta|AltGraph|CapsLock|OS)$/.test(e.key)) return;
+      var shortcut = e.ctrlKey || e.metaKey || e.altKey || /^F[0-9]+$/.test(e.key);
+      skip(e, !shortcut);
+    }, true);
+    addEventListener("click", function(e){ skip(e, true); }, true);
+    addEventListener("touchstart", function(e){ skip(e, true); }, {capture: true, passive: false});
+  } catch (err) { reveal(); }
+})();
+</script>
+<style>
+  :root{--bg:#000;--fg:#0f0;--dim:#4fd84f;--faint:#0b8f0b;--hi:#b9ffb9;--panel:rgba(0,0,0,.88)}
   :root,*{forced-color-adjust:none}
-  html.pre main{visibility:hidden}
-  #rain,#rain3d{transition:opacity 3s ease-out}
-  html.pre #rain,html.pre #rain3d{opacity:.7}
   *{box-sizing:border-box}
-  /* overflow-anchor:none: the decode/replay changes line wraps in the section on screen, and scroll anchoring then moved scrollY by a line */
-  html{scroll-behavior:smooth;scroll-padding-top:var(--nav-height,100px);overflow-anchor:none}
-  body{margin:0;background:var(--bg);color:var(--fg);
-    font:16px/1.6 "Fira Code","Cascadia Code",Consolas,"Courier New",monospace}
-  #rain,#rain3d{position:fixed;inset:0;width:100%;height:100%;z-index:0;opacity:.22;pointer-events:none}
-  body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:2;
-    background:repeating-linear-gradient(to bottom,rgba(0,0,0,0) 0 2px,rgba(0,0,0,.18) 3px)}
-  /* neon: color stays lit, only the glow breathes (never fully off) */
-  @keyframes neon{0%,100%{opacity:.84;text-shadow:0 0 1px currentColor,0 0 4px rgba(57,255,20,.4)}
-    50%{opacity:1;text-shadow:0 0 5px currentColor,0 0 16px #39ff14,0 0 34px rgba(57,255,20,.7)}}
-  @keyframes neonbox{0%,100%{opacity:.84;text-shadow:0 0 1px currentColor,0 0 4px rgba(57,255,20,.4);box-shadow:0 0 3px rgba(57,255,20,.25),inset 0 0 4px rgba(57,255,20,.1)}
-    50%{opacity:1;text-shadow:0 0 5px currentColor,0 0 16px #39ff14;box-shadow:0 0 14px rgba(57,255,20,.7),inset 0 0 12px rgba(57,255,20,.25)}}
-  @keyframes neonpanel{0%,100%{border-color:#0c6a2c;box-shadow:0 0 6px rgba(57,255,20,.12)}
-    50%{border-color:#39ff14;box-shadow:0 0 22px rgba(57,255,20,.45),inset 0 0 18px rgba(57,255,20,.08)}}
-  section,nav{animation:neonpanel 4.2s ease-in-out infinite}
-  nav{animation-name:neonpanel}
-  #hero{animation:none!important;border:0!important;box-shadow:none!important}
-  .tag,.btn{animation:neonbox 3.8s ease-in-out infinite!important}
-  .tag:nth-child(2n),.btn:nth-child(2n){animation-delay:-1.7s!important}
-  .tag:nth-child(3n){animation-delay:-2.9s!important}
-  @keyframes neonbig{0%,100%{text-shadow:0 0 6px #39ff14,0 0 18px rgba(57,255,20,.6)}
-    50%{text-shadow:0 0 10px #9dff7a,0 0 30px #39ff14,0 0 60px rgba(57,255,20,.75)}}
-  p,li,a,h2,h3,.tag,.when,.tech,.prompt,.meta,.k,.role,footer,.btn{animation:neon 3.6s ease-in-out infinite}
-  li:nth-child(2n),.tag:nth-child(2n),p:nth-of-type(2n){animation-duration:4.4s;animation-delay:-1.3s}
-  li:nth-child(3n),.tag:nth-child(3n),h3{animation-duration:5.2s;animation-delay:-2.6s}
-  h1{animation:neonbig 3s ease-in-out infinite}
+  /* overflow-anchor:none: scroll anchoring would move scrollY when line wraps change on screen */
+  html{background:#000;scroll-behavior:smooth;scroll-padding-top:var(--nav-height,100px);overflow-anchor:none}
+  body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.6 monospace}
+  #rain{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none}
   main{position:relative;z-index:1;max-width:900px;margin:0 auto;padding:0 16px;overflow-wrap:anywhere}
-  nav{position:sticky;top:0;z-index:3;background:#020a04;border-bottom:1px solid var(--faint);
+  nav{position:sticky;top:0;z-index:3;background:#000;border-bottom:1px solid var(--fg);
     display:flex;gap:6px 18px;flex-wrap:wrap;padding:10px 16px;justify-content:center;font-size:14px}
   a{color:var(--fg);text-decoration:none}
-  li a{animation:none}
-  a:hover,a:focus-visible{color:var(--bg);background:var(--fg);outline:none;animation:none;text-shadow:none}
-  a:focus-visible{outline:2px solid var(--hi);outline-offset:3px}
-  nav a::before{content:"./"; color:var(--dim)}
+  a:hover,a:focus-visible{color:var(--bg);background:var(--fg);outline:none}
+  a:focus-visible,button:focus-visible{outline:2px solid #fff;outline-offset:2px}
+  nav a::before{content:"./";color:var(--dim)}
   nav a:hover::before,nav a:focus-visible::before{color:var(--bg)}
-  section{margin-top:56px;background:var(--panel);border:1px solid var(--faint);padding:20px 22px;
-    box-shadow:0 0 22px rgba(0,255,106,.08)}
+  section{margin-top:56px;background:var(--panel);border:1px solid var(--fg);padding:20px 22px}
   .prompt{color:var(--dim);margin:0 0 12px;font-size:14px}
   .prompt b{color:var(--fg);font-weight:400}
   h1,h2,h3{margin:0;font-weight:400}
-  h1{font-size:clamp(34px,8vw,64px);line-height:1.1;letter-spacing:.04em;color:var(--hi);
-    }
+  h1{font-size:clamp(34px,8vw,64px);line-height:1.1;letter-spacing:.04em;color:var(--hi)}
   h2{font-size:18px;color:var(--hi);margin-bottom:14px}
   h2::before{content:"## ";color:var(--dim)}
-  #hero{min-height:78vh;display:flex;flex-direction:column;justify-content:center;
-    background:transparent;border:0;box-shadow:none;padding:0}
-  .role{color:var(--fg);font-size:clamp(15px,2.6vw,20px);min-height:1.6em}
-  .role,#role-size{display:grid}
-  .role>span,#role-size>span{grid-area:1/1;min-width:0}
-  #role-size{visibility:hidden;pointer-events:none}
-  #role-size>span::before{content:attr(data-role)}
-  #role-size .cursor{animation:none}
-  .cursor{display:inline-block;width:.6em;height:1.1em;background:var(--fg);vertical-align:-.2em;
-    animation:blink 1s steps(2) infinite}
-  @keyframes blink{50%{opacity:0}}
+  #hero{min-height:78vh;display:flex;flex-direction:column;justify-content:center}
+  .role{color:var(--fg);font-size:clamp(15px,2.6vw,20px);margin:6px 0}
+  .role span{display:block}
   .meta{color:var(--dim);margin-top:18px}
   .cta{display:flex;gap:12px;flex-wrap:wrap;margin-top:24px}
   .btn{border:1px solid var(--fg);padding:8px 16px}
@@ -129,38 +127,28 @@
   .skill-row .k{color:var(--dim);font-size:14px;display:block}
   .wip{color:var(--dim)}
   footer{text-align:center;color:var(--dim);margin-top:48px;font-size:14px}
-  .sr{position:absolute;left:-9999px}
-  /* calm variant: JS sets html.motion-reduced / html.motion-full; the media query is only the no-JS default */
-  :where(html.motion-reduced) *{animation-duration:6s!important}
-  :where(html.motion-reduced) .cursor{animation:none}
   html.motion-reduced{scroll-behavior:auto}
-  @media (prefers-reduced-motion:reduce){
-    :where(html:not(.motion-full):not(.motion-reduced)) *{animation-duration:6s!important}
-    :where(html:not(.motion-full):not(.motion-reduced)) .cursor{animation:none}
-    html:not(.motion-full):not(.motion-reduced){scroll-behavior:auto}
-  }
+  @media (prefers-reduced-motion:reduce){html:not(.motion-full):not(.motion-reduced){scroll-behavior:auto}}
   /* focusing the sticky nav must not scroll the page (html scroll-padding-top would count it as obscured) */
   nav,nav *{scroll-margin-top:-400px;scroll-margin-bottom:-400px}
   .motion-ctl{white-space:nowrap;color:var(--dim)}
   .motion-ctl button{font:inherit;color:var(--dim);background:none;border:1px solid var(--faint);padding:0 8px;margin:0 2px;cursor:pointer;line-height:1.4}
   .motion-ctl button:hover{color:var(--fg);border-color:var(--fg)}
-  .motion-ctl button:focus-visible{outline:2px solid var(--hi);outline-offset:2px}
   .motion-ctl button[aria-pressed="true"]{background:var(--fg);color:var(--bg);border-color:var(--fg);text-decoration:underline}
-  .motion-ctl button[aria-pressed="true"]::before{content:"● "}
+  .motion-ctl button[aria-pressed="true"]::before{content:"● "}
   @media (max-width:520px){section{padding:16px}}
-  /* 3D rain live: make the motion read through the panels (2D fallback look is unchanged) */
-  html.rain3d{--panel:rgba(2,16,8,.58)}
-  html.rain3d #rain3d{opacity:.42}
-  html.pre.rain3d #rain3d{opacity:.7}
-  .offscreen,.offscreen *{animation-play-state:paused!important}
+  /* the opening: rain alone, then one fade of nav and main. Hidden with opacity+visibility (layout stays identical). The only animations on the page. */
+  @keyframes reveal{from{opacity:0}to{opacity:1}}
+  @keyframes openfail{to{opacity:1;visibility:visible}}
+  html.opening nav,html.opening main{opacity:0;visibility:hidden;animation:openfail 0s 7s forwards}
+  html.revealing nav,html.revealing main{animation:reveal .8s ease-out both}
   /* full-page sections (screen only): every section is exactly one page tall, directly under the nav, no gaps.
-     --nav-h is the real nav height (set live by script, whole device pixels); --nav-height (+16) stays for scroll-padding only. */
+     --nav-h is the real nav height (set live by script, whole pixels); --nav-height (+16) stays for scroll-padding only. */
   :root{--nav-h:44px;--page-h:calc(100vh - var(--nav-h));--bar-gap:0px}
   @supports (height:100svh){:root{--page-h:calc(100svh - var(--nav-h));--bar-gap:calc(100lvh - 100svh)}}
   @media screen{
     main{padding-bottom:var(--bar-gap)}
-    main>section{min-height:var(--page-h);margin:0 0 var(--bar-gap);box-sizing:border-box;display:flex;flex-direction:column;
-      justify-content:center;clip-path:inset(0 -80px)}
+    main>section{min-height:var(--page-h);margin:0 0 var(--bar-gap);box-sizing:border-box;display:flex;flex-direction:column;justify-content:center}
     main>section:last-of-type{margin-bottom:0}
     #hero{min-height:var(--page-h)}
     main>section>p,main>section>ul{margin-top:0;margin-bottom:12px}
@@ -171,9 +159,6 @@
   .term{display:none}
   @media screen and (min-width:1024px){
     html{--fs:clamp(17px,.6vw + 11px,20px);--fs-sm:calc(var(--fs)*.86)}
-    :root,html.rain3d{--panel:rgba(2,16,8,.86)}
-    html.rain3d #rain3d{opacity:.5}
-    html.pre.rain3d #rain3d{opacity:.7}
     body{font-size:var(--fs)}
     nav{font-size:var(--fs-sm);padding:14px 24px;gap:8px 30px}
     main{max-width:min(1500px,100%);padding:0 clamp(24px,3vw,56px) var(--bar-gap)}
@@ -194,17 +179,15 @@
     .meta{font-size:1em;margin-top:.6em;text-wrap:balance}
     li{margin:.35em 0;padding-left:1.4em}
     .tech{margin-top:.8em}
-    /* hero: name, role, meta, CTA on the left; decorative terminal on the right */
+    /* hero: name, role, meta, CTA on the left; terminal-style summary on the right */
     #hero{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);grid-template-rows:repeat(5,auto);
-      column-gap:clamp(40px,5vw,80px);align-content:center;justify-content:normal;padding-top:0;padding-bottom:0}
-    #hero{background:radial-gradient(ellipse 62% 70% at 26% 50%,rgba(1,6,3,.78),rgba(1,6,3,.5) 55%,rgba(1,6,3,0) 100%)}
+      column-gap:clamp(40px,5vw,80px);align-content:center;justify-content:normal}
     #hero>*{grid-column:1}
     #hero>.term{grid-column:2;grid-row:1/span 5;align-self:center}
     h1{font-size:clamp(72px,8vw,132px);line-height:.94;margin:4px 0 8px}
     .role{font-size:clamp(18px,1.35vw,24px)}
     .cta{margin-top:22px}
-    .term{display:block;border:1px solid var(--faint);background:var(--panel);font-size:var(--fs-sm);
-      animation:neonpanel 4.2s ease-in-out infinite}
+    .term{display:block;border:1px solid var(--faint);font-size:var(--fs-sm)}
     .term-bar{padding:10px 20px;border-bottom:1px solid var(--faint);color:var(--dim)}
     .term-bar b{color:var(--fg);font-weight:400}
     .term-body{padding:20px 24px 14px}
@@ -220,7 +203,7 @@
     #experience>.prompt,#experience>h2{grid-column:1/-1}
     #experience>.prompt{margin-bottom:-.2em}
     #experience>h2{margin-bottom:0}
-    #experience>.job{margin:0;border:1px solid var(--faint);background:rgba(0,0,0,.28);padding:.75em 1em;grid-row:3}
+    #experience>.job{margin:0;border:1px solid var(--faint);padding:.75em 1em;grid-row:3}
     #experience>.job:nth-of-type(1){grid-column:1}
     #experience>.job:nth-of-type(2){grid-column:2}
     #experience>.job:nth-of-type(3){grid-column:3}
@@ -243,21 +226,19 @@
     .skill-row{margin:.7em 0}
     /* contact: three cards across */
     #contact ul{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1.2em;margin:.4em 0 0}
-    #contact li{margin:0;border:1px solid var(--faint);background:rgba(0,0,0,.28);padding:1.6em .8em 1.6em 2.3em}
+    #contact li{margin:0;border:1px solid var(--faint);padding:1.6em .8em 1.6em 2.3em}
     #contact li::before{left:.9em;top:1.6em}
     #contact li a{font-size:.9em;display:block}
   }
   @media print{
-    html.pre main{visibility:visible}
-    *,*::before,*::after{animation:none!important;text-shadow:none!important;box-shadow:none!important;
-      opacity:1!important;filter:none!important;transition:none!important}
+    html.opening nav,html.opening main{opacity:1;visibility:visible;animation:none}
+    *,*::before,*::after{animation:none!important;text-shadow:none!important;box-shadow:none!important;opacity:1!important;filter:none!important;transition:none!important}
     html,body{background:#fff!important;color:#000!important}
     body{font-size:11pt;line-height:1.4}
-    #rain,#rain3d,#role-size,nav,.cursor,.cta,.term,body::after,.sr{display:none!important}
+    #rain,nav,.cta,.term{display:none!important}
     main{max-width:none;padding:0;overflow-wrap:normal}
-    main span{visibility:visible!important}
-    main>section{min-height:0!important;margin:14px 0 0;clip-path:none}
-    section{background:#fff!important;border:0;border-top:1px solid #999;padding:10px 0;margin-top:14px}
+    main>section{min-height:0!important;margin:14px 0 0}
+    section{background:#fff!important;border:0;border-top:1px solid #999;padding:10px 0}
     #hero{min-height:0;padding:0;border:0}
     h1,h2,h3,p,li,a,.prompt,.prompt b,.when,.tech,.tech span,.meta,.k,.role,.wip,footer,.tag,li::before,h2::before{color:#000!important;background:none!important}
     .tag{border-color:#666}
@@ -269,7 +250,7 @@
 </head>
 <body>
 <canvas id="rain" aria-hidden="true"></canvas>
-<canvas id="rain3d" aria-hidden="true" hidden></canvas>
+<script src="rain.js"></script>
 <nav aria-label="Sections">
   <a href="#about">about</a><a href="#experience">experience</a><a href="#certs">certs</a>
   <a href="#skills">skills</a><a href="#contact">contact</a>
@@ -303,8 +284,7 @@
   <section id="hero">
     <p class="prompt">root@neo:~$ <b>whoami</b></p>
     <h1>JULIÁN CASTRO</h1>
-    <p class="role" aria-hidden="true"><span><span id="typed">Mid-Level MuleSoft Developer &amp; RPA Specialist</span><span class="cursor" aria-hidden="true"></span></span><span id="role-size"></span></p>
-    <p class="sr">Mid-Level MuleSoft Developer and RPA Specialist, Full Stack Web Developer</p>
+    <p class="role"><span>Mid-Level MuleSoft Developer &amp; RPA Specialist</span><span>Full Stack Web Developer</span><span>API-led integration · Core banking · AI agents</span></p>
     <p class="meta">Buenos Aires, Argentina · Spanish (native) · English C1</p>
     <div class="cta">
       <a class="btn" href="#experience">[ enter the system ]</a>
@@ -410,257 +390,11 @@
       <li>GitHub: <a href="https://github.com/JulianCastro130" rel="noopener">github.com/<wbr>JulianCastro130</a></li>
     </ul>
     </div>
-    <footer>Wake up, recruiter… the Matrix has you. <span class="cursor" aria-hidden="true"></span></footer>
+    <footer>Wake up, recruiter… the Matrix has you.</footer>
   </section>
 
 </main>
 
-<script>
-(function(){
-  var M = window.motion;
-  var reduce = M.reduced();
-  var typingTimer, rainTimer;
-  var nav = document.querySelector("nav");
-  var ctl = nav.querySelector(".motion-ctl");
-  function syncCtl(){
-    Array.prototype.forEach.call(ctl.querySelectorAll("button"), function(b){
-      b.setAttribute("aria-pressed", String((b.getAttribute("data-m") === "reduced") === M.reduced()));
-    });
-  }
-  ctl.addEventListener("click", function(e){ var b = e.target.closest("button"); if (b) M.set(b.getAttribute("data-m")); });
-  M.onChange(syncCtl); syncCtl();
-
-  // Typed role line
-  var lines = ["Mid-Level MuleSoft Developer & RPA Specialist","Full Stack Web Developer","API-led integration · Core banking · AI agents"];
-  var el = document.getElementById("typed");
-  // Reserve every wrapped role, including the cursor. Generated text keeps the
-  // hidden sizing samples out of the intro's text-node decoder.
-  var roleSize = document.getElementById("role-size");
-  lines.concat([lines[0] + " · " + lines[1]]).forEach(function(line){
-    var sample = document.createElement("span");
-    sample.setAttribute("data-role", line);
-    var cursor = document.createElement("span");
-    cursor.className = "cursor";
-    sample.appendChild(cursor);
-    roleSize.appendChild(sample);
-  });
-  function startTyping(){
-    clearTimeout(typingTimer);
-    if (reduce) { el.textContent = lines[0] + " · " + lines[1]; return; }
-    var li = 0, ci = lines[0].length, del = false;
-    (function tick(){
-      var s = lines[li];
-      el.textContent = s.slice(0, ci);
-      if (!del && ci < s.length) { ci++; typingTimer = setTimeout(tick, 45); }
-      else if (!del) { del = true; typingTimer = setTimeout(tick, 1600); }
-      else if (ci > 1) { ci--; typingTimer = setTimeout(tick, 20); }
-      else { del = false; li = (li + 1) % lines.length; typingTimer = setTimeout(tick, 300); }
-    })();
-  }
-  startTyping();
-  // print: show the full role line instead of whatever the typewriter is on
-  addEventListener("beforeprint", function(){ clearTimeout(typingTimer); el.textContent = lines[0] + " · " + lines[1]; });
-  addEventListener("afterprint", startTyping);
-  M.onChange(function(r){
-    reduce = r;
-    startTyping();
-    startRain();
-  });
-
-  // Digital rain
-  var c = document.getElementById("rain"), g = c.getContext("2d");
-  if (!g) return;
-  var chars = "ｱｲｳｴｵｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄﾅﾆﾇﾈﾉﾊﾋﾌﾍﾎﾏﾐﾑﾒﾓﾔﾕﾖﾗﾘﾙﾚﾛﾜﾝ0123456789<>/{}=".split("");
-  var size = 16, cols = 0, drops = [], ready = false;
-  // Width changes keep the existing drops (columns are added/trimmed). Height-only
-  // changes (mobile URL bar) are ignored unless the viewport outgrows the canvas;
-  // the canvas has a fixed pixel height so it is never stretched.
-  function resize(){
-    var w = innerWidth, h = innerHeight;
-    if (ready && w === c.width && h <= c.height) return;
-    var nh = ready ? Math.max(h, c.height) : h, tmp = null;
-    if (ready){
-      tmp = document.createElement("canvas"); tmp.width = c.width; tmp.height = c.height;
-      tmp.getContext("2d").drawImage(c, 0, 0);
-    }
-    c.width = w; c.height = nh;
-    c.style.height = nh + "px";
-    g.fillStyle = "#010603"; g.fillRect(0, 0, w, nh);
-    if (tmp) g.drawImage(tmp, 0, 0);
-    var n = Math.ceil(w / size);
-    if (n < drops.length) drops.length = n;
-    while (drops.length < n) drops.push(Math.random() * -50);
-    cols = n; ready = true;
-  }
-  addEventListener("resize", resize); resize();
-  function draw(){
-    g.fillStyle = "rgba(2,10,4,.08)"; g.fillRect(0, 0, c.width, c.height);
-    g.font = size + "px monospace";
-    for (var i = 0; i < cols; i++){
-      var ch = chars[(Math.random() * chars.length) | 0];
-      g.fillStyle = Math.random() > .975 ? "#d8ffe6" : "#39ff14";
-      g.fillText(ch, i * size, drops[i] * size);
-      if (drops[i] * size > c.height && Math.random() > .975) drops[i] = 0;
-      drops[i] += 1;
-    }
-  }
-  var suspended = false;   // true while the WebGL rain (rain3d.js) is live
-  function startRain(){
-    clearInterval(rainTimer);
-    if (!g || document.hidden || suspended) return;
-    rainTimer = setInterval(draw, reduce ? 140 : 55);
-  }
-  document.addEventListener("visibilitychange", startRain);
-  startRain();
-  var rainEl = document.getElementById("rain");
-  window.rain2d = {setSuspended: function(v){ suspended = v; rainEl.style.display = v ? "none" : ""; startRain(); }};
-  // after first paint, lazily try the 3D rain; the 2D rain above runs until it is live
-  function load3d(){ setTimeout(function(){ import("./rain3d.js").then(function(m){ m.start(); }).catch(function(){}); }, 400); }
-  if (document.readyState === "complete") load3d(); else addEventListener("load", load3d);
-})();
-</script>
-<script>
-// Intro: the CV decodes out of the rain, top to bottom.
-(function(){
-  var root = document.documentElement;
-  function done(){ root.classList.remove("pre"); }
-  try {
-    var main = document.querySelector("main");
-    var G = "01<>/{}[]=+*#$%&@;:ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
-    var walker = document.createTreeWalker(main, NodeFilter.SHOW_TEXT, {
-      acceptNode: function(n){
-        if (!n.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
-        var el = n.parentElement;
-        if (el.closest(".sr,script,#typed,.cursor")) return NodeFilter.FILTER_REJECT;
-        return NodeFilter.FILTER_ACCEPT;
-      }
-    });
-    var list = [], n;
-    while ((n = walker.nextNode())) list.push(n);
-    main.setAttribute("aria-busy","true");
-    var items = list.map(function(node){
-      var span = document.createElement("span");
-      var text = node.nodeValue;
-      node.parentNode.replaceChild(span, node);
-      span.textContent = text;
-      var y = span.getBoundingClientRect().top + scrollY;
-      var offs = []; for (var i = 0; i < text.length; i++) offs.push(Math.random() * 600);
-      span.style.visibility = "hidden";
-      return {span: span, text: text, delay: Math.min(y, 3000) * 1.1, offs: offs, done: false, end: 0};
-    });
-    items.forEach(function(it){
-      it.end = it.delay + Math.min(it.text.length * 20, 900) + 600;
-    });
-    // every element (not just text) flickers on as the wave reaches it
-    var els = document.querySelectorAll("nav,section,article,.term,.job header,.tag,.btn,li,h1,h2,h3,p,footer,.skill-row");
-    Array.prototype.forEach.call(els, function(el){
-      if (el.closest(".sr") || !el.animate) return;
-      var y = el.getBoundingClientRect().top + scrollY;
-      var d = Math.min(y, 3000) * 1.1 + Math.random() * 250;
-      el.animate([
-        {opacity:0, filter:"brightness(3)", offset:0},
-        {opacity:.9, filter:"brightness(2.2)", offset:.12},
-        {opacity:.1, filter:"brightness(1.2)", offset:.24},
-        {opacity:1, filter:"brightness(2)", offset:.4},
-        {opacity:.4, filter:"brightness(1.4)", offset:.55},
-        {opacity:1, filter:"brightness(1)", offset:1}
-      ], {duration: 800, delay: d, fill: "backwards", easing: "linear"});
-    });
-    // print mid-intro: finish decoding so the text is complete
-    addEventListener("beforeprint", function(){
-      items.forEach(function(it){ it.span.textContent = it.text; it.span.style.visibility = ""; it.done = true; });
-    });
-    // section arrival replay (called by stepscroll.js): flicker + decode once per section, on first arrival
-    var replayed = [], replayGen = 0, active = 0;
-    addEventListener("beforeprint", function(){ replayGen++; active = 0; items.forEach(function(it){ it.rdone = true; }); main.removeAttribute("aria-busy"); });
-    window.sectionReplay = function(sec){
-      if (replayed.indexOf(sec) >= 0) return;
-      replayed.push(sec);
-      if (window.motion.reduced()) return;
-      var mine = items.filter(function(it){ return sec.contains(it.span); });
-      if (!mine.length || mine.some(function(it){ return !it.done; })) return;   // intro still decoding it
-      var top = sec.getBoundingClientRect().top + scrollY, gen = replayGen;
-      mine.forEach(function(it){
-        var y = it.span.getBoundingClientRect().top + scrollY - top;
-        it.rdelay = Math.min(Math.max(y, 0), 900) * .5;
-        it.rend = it.rdelay + Math.min(it.text.length * 20, 900) + 500;
-        it.rdone = false; it.span.style.visibility = "hidden";
-      });
-      var fl = sec.querySelectorAll("section,article,.term,.job header,.tag,.btn,li,h1,h2,h3,p,footer,.skill-row");
-      Array.prototype.concat.call([sec], Array.prototype.slice.call(fl)).forEach(function(el){
-        if (el.closest(".sr") || !el.animate) return;
-        var ey = Math.max(0, el.getBoundingClientRect().top + scrollY - top);
-        el.animate([
-          {opacity:0, filter:"brightness(3)", offset:0},
-          {opacity:.9, filter:"brightness(2.2)", offset:.12},
-          {opacity:.1, filter:"brightness(1.2)", offset:.24},
-          {opacity:1, filter:"brightness(2)", offset:.4},
-          {opacity:.4, filter:"brightness(1.4)", offset:.55},
-          {opacity:1, filter:"brightness(1)", offset:1}
-        ], {duration: 800, delay: Math.min(ey, 900) * .5 + Math.random() * 250, fill: "backwards", easing: "linear"});
-      });
-      main.setAttribute("aria-busy", "true"); active++;
-      var t0 = performance.now(), last = 0;
-      (function frame(now){
-        if (gen !== replayGen) return;
-        var t = now - t0, alive = 0;
-        if (now - last > 45 || now === t0) {
-          last = now;
-          mine.forEach(function(it){
-            if (it.rdone) return;
-            if (t < it.rdelay) { alive++; return; }
-            if (t >= it.rend) { it.span.textContent = it.text; it.span.style.visibility = ""; it.rdone = true; return; }
-            alive++;
-            var out = "", tx = it.text;
-            for (var i = 0; i < tx.length; i++) {
-              var c = tx[i];
-              out += (/\s/.test(c) || t >= it.rdelay + Math.min(i * 20, 900) + it.offs[i]) ? c : G[(Math.random() * G.length) | 0];
-            }
-            it.span.textContent = out; it.span.style.visibility = "visible";
-          });
-        } else alive = 1;
-        if (alive) requestAnimationFrame(frame);
-        else if (--active <= 0 && items.every(function(it){ return it.done; })) main.removeAttribute("aria-busy");
-      })(t0);
-    };
-    done();                       // reveal <main>; every text node is hidden or scrambled
-    var t0 = performance.now(), last = 0;
-    (function frame(now){
-      var t = now - t0, alive = 0;
-      if (now - last > 45) {
-        last = now;
-        items.forEach(function(it){
-          if (it.done) return;
-          if (t < it.delay) { alive++; return; }
-          if (t >= it.end) { it.span.textContent = it.text; it.span.style.visibility = ""; it.done = true; return; }
-          alive++;
-          var out = "", tx = it.text;
-          for (var i = 0; i < tx.length; i++) {
-            var c = tx[i];
-            out += (/\s/.test(c) || t >= it.delay + Math.min(i * 20, 900) + it.offs[i]) ? c : G[(Math.random() * G.length) | 0];
-          }
-          it.span.textContent = out;
-          it.span.style.visibility = "visible";
-        });
-      } else alive = 1;
-      if (alive) requestAnimationFrame(frame);
-      else {
-        main.removeAttribute("aria-busy");
-        document.querySelectorAll("#rain,#rain3d").forEach(function(r){ r.style.opacity = ""; });
-      }
-    })(t0);
-    // pause CSS glow animations in sections far from the viewport (battery)
-    if ("IntersectionObserver" in window) {
-      var io = new IntersectionObserver(function(entries){
-        entries.forEach(function(e){ e.target.classList.toggle("offscreen", !e.isIntersecting); });
-      }, {rootMargin: "100% 0px 100% 0px"});
-      Array.prototype.forEach.call(document.querySelectorAll("main > section"), function(s){ io.observe(s); });
-    }
-    // let the rain settle after the intro
-    setTimeout(function(){ document.querySelectorAll("#rain,#rain3d").forEach(function(r){ r.style.opacity = ""; }); }, 1200);
-  } catch (e) { done(); }
-})();
-</script>
 <script src="stepscroll.js"></script>
 </body>
 </html>

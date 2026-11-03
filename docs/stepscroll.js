@@ -1,6 +1,6 @@
 // Section-by-section scrolling (see office/SCROLL.md). One rule for every input:
 // if the current section has room in that direction, scroll natively; at its edge, step to the next.
-// Without JS (or if this file fails) the page scrolls normally.
+// Without JS (or if this file fails) the page scrolls normally. While the opening (rain alone) plays, inputs are held off.
 (function(){
   "use strict";
   var doc = document.documentElement;
@@ -110,16 +110,11 @@
     cancelAnimationFrame(raf); tweening = false;
     var f = tweenDone; tweenDone = null; if (f) f();
   }
-  function arrive(i){
-    if (i <= 0 || reduce() || !window.sectionReplay) return;
-    stops[i].els.forEach(function(el){ try { window.sectionReplay(el); } catch (e) {} });
-  }
   // re (optional): returns the freshly measured target; used when the tween ends so a layout that moved meanwhile is corrected
   function goTo(y, i, instant, dur, re){
     cancelTween();
     function fix(v){ var mx = Math.max(0, doc.scrollHeight - innerHeight); return Math.min(mx, Math.max(0, v)); }
     y = fix(y);
-    if (i >= 0) arrive(i);
     var from = scrollY, dist = Math.abs(y - from);
     function end(){ var ny = re ? fix(re()) : y; if (Math.abs(ny - scrollY) > .01) jump(ny); lastLand = {y: scrollY}; markRest(); }
     if (dist < .01) { end(); return; }
@@ -145,8 +140,9 @@
   var lastWheelT = 0, lastAbs = 0, locked = false, lockDir = 0, minAbs = Infinity, acc = 0, accDir = 0, lastNativeAt = -1e9;
   function lock(d, abs){ locked = true; lockDir = d; minAbs = abs; acc = 0; }
 
+  function opening(){ return doc.classList.contains("opening"); }
   addEventListener("wheel", function(e){
-    if (e.ctrlKey || e.defaultPrevented || zoomed()) return;
+    if (e.ctrlKey || e.defaultPrevented || zoomed() || opening()) return;
     var dx = e.deltaX, dy = e.deltaY;
     if (!dy || Math.abs(dx) > Math.abs(dy)) return;
     dy *= e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? innerHeight : 1;
@@ -181,7 +177,7 @@
   // ---- touch ----
   var touch = null;
   addEventListener("touchstart", function(e){
-    if (e.touches.length !== 1 || zoomed()) { touch = null; return; }
+    if (e.touches.length !== 1 || zoomed() || opening()) { touch = null; return; }
     cancelTween();
     touch = {y: e.touches[0].clientY, mode: "", dy: 0};
   }, {passive: true});
@@ -207,7 +203,7 @@
 
   // ---- keyboard ----
   addEventListener("keydown", function(e){
-    if (e.defaultPrevented || e.ctrlKey || e.altKey || e.metaKey) return;
+    if (e.defaultPrevented || e.ctrlKey || e.altKey || e.metaKey || opening()) return;
     var tg = e.target;
     if (tg && tg.closest && tg.closest("input,select,textarea,[contenteditable]")) return;
     var k = e.key, d = 0, L;
@@ -249,7 +245,7 @@
     return true;
   }
   document.addEventListener("click", function(e){
-    if (e.defaultPrevented || e.button || e.ctrlKey || e.metaKey || e.shiftKey || e.altKey) return;
+    if (e.defaultPrevented || e.button || e.ctrlKey || e.metaKey || e.shiftKey || e.altKey || opening()) return;
     var a = e.target.closest && e.target.closest('a[href^="#"]');
     if (!a) return;
     var h = a.getAttribute("href");
@@ -284,7 +280,6 @@
     if (tweening || touch) return;
     var L = layout(), y = scrollY, i = nearest(y, L);
     markRest();
-    arrive(i);
     if (now() - lastNativeAt > 2500) return;                         // find-in-page, Tab focus, scrollbar: never snapped
     for (var j = 0; j < L.length; j++) if (y >= L[j].lo - TOL && y <= L[j].hi + TOL) return;
     var below = -1, above = -1;
