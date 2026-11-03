@@ -109,6 +109,7 @@
   .role{color:var(--fg);font-size:clamp(15px,2.6vw,20px);margin:6px 0}
   .role span{display:block}
   .meta{color:var(--dim);margin-top:18px}
+  .meta span{white-space:nowrap}
   .cta{display:flex;gap:12px;flex-wrap:wrap;margin-top:24px}
   .btn{border:1px solid var(--fg);padding:8px 16px}
   .job{margin-bottom:26px}
@@ -273,6 +274,14 @@
     root.style.setProperty("--nav-h", h + "px");
     root.style.setProperty("--nav-height", (h + 16) + "px");
   }
+  // pressed state follows window.motion (single source of truth); clicking sets and stores the choice
+  function syncCtl(){
+    Array.prototype.forEach.call(ctl.querySelectorAll("button"), function(b){
+      b.setAttribute("aria-pressed", String((b.getAttribute("data-m") === "reduced") === window.motion.reduced()));
+    });
+  }
+  ctl.addEventListener("click", function(e){ var b = e.target.closest("button"); if (b) window.motion.set(b.getAttribute("data-m")); });
+  window.motion.onChange(syncCtl); syncCtl();
   measureNav();
   function queue(){ cancelAnimationFrame(raf); raf = requestAnimationFrame(measureNav); }
   addEventListener("resize", queue);
@@ -285,7 +294,7 @@
     <p class="prompt">root@neo:~$ <b>whoami</b></p>
     <h1>JULIÁN CASTRO</h1>
     <p class="role"><span>Mid-Level MuleSoft Developer &amp; RPA Specialist</span><span>Full Stack Web Developer</span><span>API-led integration · Core banking · AI agents</span></p>
-    <p class="meta">Buenos Aires, Argentina · Spanish (native) · English C1</p>
+    <p class="meta"><span>Buenos Aires, Argentina</span> <span>· Spanish (native)</span> <span>· English C1</span></p>
     <div class="cta">
       <a class="btn" href="#experience">[ enter the system ]</a>
       <a class="btn" href="#contact">[ contact ]</a>

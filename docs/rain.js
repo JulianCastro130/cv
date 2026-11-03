@@ -9,9 +9,10 @@
   if (!g) return;
   var M = window.motion;
   var STEP = 20, LIMIT = 10000, FULL = 50, CALM = 140;
-  // The pen's reset test (y > 100 + random*10000, drawn fresh every tick) was tuned for its 200px preview. On a 1080px screen only ~5%
-  // of the columns reach the bottom (measured bottom/top coverage 0.2), so only the 10000 constant is scaled, linearly by height (H/200):
-  // measured bottom/top 0.75 at 1920x1080. (Scaling by (H/200)^2 would keep the pen's exact survival but cut the density to a third.)
+  // The pen's reset test (y > 100 + random*10000, drawn fresh every tick) makes survival to depth y fall off roughly as
+  // exp(-y^2 / (40 * 10000)), so the pen is dense at its small default canvas (500x200) and a tall screen (its canvas follows
+  // body.offsetHeight) loses the bottom: on 1080px only ~5% of the columns reach it (measured bottom/top coverage 0.2).
+  // Only the 10000 constant is scaled, linearly by height (H/200): measured bottom/top 0.75 at 1920x1080.
   var W = 0, H = 0, dpr = 1, cols = 0, ypos = [], ready = false, timer = 0;
   function calm(){ return !!(M && M.reduced()); }
 
