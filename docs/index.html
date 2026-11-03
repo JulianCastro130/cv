@@ -192,7 +192,7 @@
     .tag{padding:.15em .75em}
     .btn{padding:.65em 1.4em}
     .meta{font-size:1em;margin-top:.6em;text-wrap:balance}
-    li{margin:.35em 0}
+    li{margin:.35em 0;padding-left:1.4em}
     .tech{margin-top:.8em}
     /* hero: name, role, meta, CTA on the left; decorative terminal on the right */
     #hero{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);grid-template-rows:repeat(5,auto);
@@ -256,7 +256,7 @@
     #rain,#rain3d,#role-size,nav,.cursor,.cta,.term,body::after,.sr{display:none!important}
     main{max-width:none;padding:0;overflow-wrap:normal}
     main span{visibility:visible!important}
-    main>section{min-height:0!important;margin:0 0 0;clip-path:none}
+    main>section{min-height:0!important;margin:14px 0 0;clip-path:none}
     section{background:#fff!important;border:0;border-top:1px solid #999;padding:10px 0;margin-top:14px}
     #hero{min-height:0;padding:0;border:0}
     h1,h2,h3,p,li,a,.prompt,.prompt b,.when,.tech,.tech span,.meta,.k,.role,.wip,footer,.tag,li::before,h2::before{color:#000!important;background:none!important}
@@ -279,7 +279,7 @@
 // --nav-h = nav height rounded up to whole CSS pixels (the nav is given that height): with integer section heights every seam is an integer,
 // which is also where scroll positions land (scroll offsets are whole CSS px in some browsers and whole device px in others).
 (function(){
-  var root = document.documentElement, nav = document.querySelector("nav"), M = window.motion;
+  var root = document.documentElement, nav = document.querySelector("nav");
   var ctl = document.createElement("span");
   ctl.className = "motion-ctl"; ctl.setAttribute("role", "group"); ctl.setAttribute("aria-label", "Motion");
   ctl.innerHTML = '<span aria-hidden="true">[ motion:</span> <button type="button" data-m="full">full</button><span aria-hidden="true">|</span><button type="button" data-m="reduced">reduced</button> <span aria-hidden="true">]</span>';
