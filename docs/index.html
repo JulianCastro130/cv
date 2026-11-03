@@ -157,6 +157,8 @@
   @media screen and (min-width:1024px){
     html{--fs:clamp(17px,.6vw + 11px,20px);--fs-sm:calc(var(--fs)*.86)}
     :root,html.rain3d{--panel:rgba(2,16,8,.86)}
+    html.rain3d #rain3d{opacity:.5}
+    html.pre.rain3d #rain3d{opacity:.7}
     body{font-size:var(--fs)}
     nav{font-size:var(--fs-sm);padding:14px 24px;gap:8px 30px}
     main{max-width:1200px;padding:0 40px var(--end-pad,80px)}
@@ -217,8 +219,9 @@
     .skill-row{margin:10px 0}
     /* contact: three cards across */
     #contact ul{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px;margin:6px 0 0}
-    #contact li{margin:0;border:1px solid var(--faint);background:rgba(0,0,0,.28);padding:18px 20px 18px 42px;font-size:1.05em}
-    #contact li::before{left:20px;top:18px}
+    #contact li{margin:0;border:1px solid var(--faint);background:rgba(0,0,0,.28);padding:18px 14px 18px 38px}
+    #contact li::before{left:16px;top:18px}
+    #contact li a{font-size:.94em}
   }
   @media print{
     html.pre main{visibility:visible}
