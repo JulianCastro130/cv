@@ -268,12 +268,26 @@
   var c = document.getElementById("rain"), g = c.getContext("2d");
   if (!g) return;
   var chars = "ｱｲｳｴｵｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄﾅﾆﾇﾈﾉﾊﾋﾌﾍﾎﾏﾐﾑﾒﾓﾔﾕﾖﾗﾘﾙﾚﾛﾜﾝ0123456789<>/{}=".split("");
-  var size = 16, cols, drops;
+  var size = 16, cols = 0, drops = [], ready = false;
+  // Width changes keep the existing drops (columns are added/trimmed). Height-only
+  // changes (mobile URL bar) are ignored unless the viewport outgrows the canvas;
+  // the canvas has a fixed pixel height so it is never stretched.
   function resize(){
-    c.width = innerWidth; c.height = innerHeight;
-    cols = Math.ceil(c.width / size);
-    drops = Array.from({length: cols}, function(){ return Math.random() * -50; });
-    g.fillStyle = "#010603"; g.fillRect(0, 0, c.width, c.height);
+    var w = innerWidth, h = innerHeight;
+    if (ready && w === c.width && h <= c.height) return;
+    var nh = ready ? Math.max(h, c.height) : h, tmp = null;
+    if (ready){
+      tmp = document.createElement("canvas"); tmp.width = c.width; tmp.height = c.height;
+      tmp.getContext("2d").drawImage(c, 0, 0);
+    }
+    c.width = w; c.height = nh;
+    c.style.height = nh + "px";
+    g.fillStyle = "#010603"; g.fillRect(0, 0, w, nh);
+    if (tmp) g.drawImage(tmp, 0, 0);
+    var n = Math.ceil(w / size);
+    if (n < drops.length) drops.length = n;
+    while (drops.length < n) drops.push(Math.random() * -50);
+    cols = n; ready = true;
   }
   addEventListener("resize", resize); resize();
   function draw(){
