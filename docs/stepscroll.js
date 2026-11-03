@@ -51,6 +51,21 @@
       var h = el.getBoundingClientRect().height;
       if (Math.abs(h - Math.round(h)) > .01) el.style.minHeight = Math.ceil(h) + "px";
     });
+    realign();
+  }
+  // A view resting on a stop edge (top of a section, or the bottom of a tall one) stays exactly on it when heights change
+  // afterwards (intro decode, replay, rounding above). Someone mid-way inside a tall section, or scrolling, is never moved.
+  function markRest(){
+    var L = layout(), y = scrollY; rest = null;
+    for (var j = 0; j < L.length; j++){
+      if (Math.abs(y - L[j].lo) <= TOL) { rest = {i: j, edge: "lo"}; return; }
+      if (L[j].tall && Math.abs(y - L[j].hi) <= TOL) { rest = {i: j, edge: "hi"}; return; }
+    }
+  }
+  function realign(){
+    if (!rest || tweening || touch) return;
+    var t = layout()[rest.i][rest.edge];
+    if (Math.abs(t - scrollY) > .01) { jump(t); lastLand = {y: t}; }
   }
   function queueFit(){ cancelAnimationFrame(fitRaf); fitRaf = requestAnimationFrame(fitHeights); }
   fitHeights();
@@ -84,7 +99,7 @@
   }
 
   // ---- movement ----
-  var tweening = false, raf = 0, progUntil = 0, lastLand = null, tweenDone = null;
+  var tweening = false, raf = 0, progUntil = 0, lastLand = null, tweenDone = null, rest = null;
   function jump(y){ progUntil = now() + 120; scrollTo({top: y, left: 0, behavior: "instant"}); }
   function cancelTween(){
     if (!tweening) return;
@@ -106,7 +121,7 @@
     y = fix(y);
     if (i >= 0) arrive(i);
     var from = scrollY, dist = Math.abs(y - from);
-    function end(){ var ny = re ? fix(re()) : y; if (Math.abs(ny - scrollY) > .01) jump(ny); lastLand = {y: scrollY}; }
+    function end(){ var ny = re ? fix(re()) : y; if (Math.abs(ny - scrollY) > .01) jump(ny); lastLand = {y: scrollY}; markRest(); }
     if (dist < .01) { end(); return; }
     if (instant || dist < 4 || reduce() || document.hidden) { jump(y); end(); return; }
     dur = dur || 500 + Math.min(100, dist / 10); var t0 = 0;
@@ -127,7 +142,7 @@
   function step(dec){ goTo(dec.target, dec.i, false, 0, function(){ return layout()[dec.i].lo; }); }
 
   // ---- gesture state shared by wheel ----
-  var lastWheelT = 0, locked = false, lockDir = 0, minAbs = Infinity, acc = 0, accDir = 0, lastNativeAt = -1e9;
+  var lastWheelT = 0, lastAbs = 0, locked = false, lockDir = 0, minAbs = Infinity, acc = 0, accDir = 0, lastNativeAt = -1e9;
   function lock(d, abs){ locked = true; lockDir = d; minAbs = abs; acc = 0; }
 
   addEventListener("wheel", function(e){
@@ -137,14 +152,19 @@
     dy *= e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? innerHeight : 1;
     var t = e.timeStamp || now(), gap = t - lastWheelT; lastWheelT = t;
     var abs = Math.abs(dy), d = dy > 0 ? 1 : -1;
+    var prevAbs = lastAbs; lastAbs = abs;
     if (tweening) { e.preventDefault(); lock(d, abs); return; }   // swallow during the tween
     if (locked) {
+      // while locked a decaying or small tail never counts as a new gesture, however late its events arrive.
+      // New gesture: other direction, a real rise in delta, a pause of 400 ms or more, or a discrete tick (not smaller than the
+      // previous event and at least 40) after a pause of GAP_MS or more.
       minAbs = Math.min(minAbs, abs);
-      if (gap >= GAP_MS || d !== lockDir || abs > minAbs * 2 + 20) locked = false;   // a new gesture
+      if (d !== lockDir || gap >= 400 || abs > minAbs * 2 + 20 || (gap >= GAP_MS && abs >= prevAbs && abs >= 40)) locked = false;
     }
     var L = layout(), y = scrollY, dec = decide(d, y, L);
     if (!dec) { acc = 0; return; }                                   // page edge: native (pull-to-refresh etc.)
     if (dec.native) {
+      if (locked) { e.preventDefault(); return; }                    // the tail of the gesture that just stepped is swallowed here too
       acc = 0; lastNativeAt = now();
       if (d > 0 ? y + dy > dec.clamp : y + dy < dec.clamp) {         // would overshoot the section edge: stop at it
         e.preventDefault(); jump(dec.clamp); lock(d, abs);
@@ -247,6 +267,8 @@
   function initial(){ if (location.hash && goHash(location.hash, true)) { /* landed instantly */ } }
   initial();
   addEventListener("load", initial);
+  addEventListener("load", function(){ markRest(); });
+  markRest();
 
   // ---- settle: native scrolling that overshot a tall section's edge comes back (or moves on) once input stops ----
   var idle = 0;
@@ -255,11 +277,13 @@
   });
   addEventListener("scroll", function(){
     if (tweening || now() < progUntil) return;
+    rest = null;
     clearTimeout(idle); idle = setTimeout(onIdle, 160);
   }, {passive: true});
   function onIdle(){
     if (tweening || touch) return;
     var L = layout(), y = scrollY, i = nearest(y, L);
+    markRest();
     arrive(i);
     if (now() - lastNativeAt > 2500) return;                         // find-in-page, Tab focus, scrollbar: never snapped
     for (var j = 0; j < L.length; j++) if (y >= L[j].lo - TOL && y <= L[j].hi + TOL) return;
