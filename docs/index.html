@@ -23,8 +23,17 @@
   body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:2;
     background:repeating-linear-gradient(to bottom,rgba(0,0,0,0) 0 2px,rgba(0,0,0,.18) 3px)}
   /* neon: color stays lit, only the glow breathes (never fully off) */
-  @keyframes neon{0%,100%{text-shadow:0 0 2px currentColor,0 0 6px rgba(57,255,20,.55)}
-    50%{text-shadow:0 0 4px currentColor,0 0 14px #39ff14,0 0 28px rgba(57,255,20,.6)}}
+  @keyframes neon{0%,100%{opacity:.84;text-shadow:0 0 1px currentColor,0 0 4px rgba(57,255,20,.4)}
+    50%{opacity:1;text-shadow:0 0 5px currentColor,0 0 16px #39ff14,0 0 34px rgba(57,255,20,.7)}}
+  @keyframes neonbox{0%,100%{opacity:.84;text-shadow:0 0 1px currentColor,0 0 4px rgba(57,255,20,.4);box-shadow:0 0 3px rgba(57,255,20,.25),inset 0 0 4px rgba(57,255,20,.1)}
+    50%{opacity:1;text-shadow:0 0 5px currentColor,0 0 16px #39ff14;box-shadow:0 0 14px rgba(57,255,20,.7),inset 0 0 12px rgba(57,255,20,.25)}}
+  @keyframes neonpanel{0%,100%{border-color:#0c6a2c;box-shadow:0 0 6px rgba(57,255,20,.12)}
+    50%{border-color:#39ff14;box-shadow:0 0 22px rgba(57,255,20,.45),inset 0 0 18px rgba(57,255,20,.08)}}
+  section,nav{animation:neonpanel 4.2s ease-in-out infinite}
+  nav{animation-name:neonpanel}
+  .tag,.btn{animation:neonbox 3.8s ease-in-out infinite!important}
+  .tag:nth-child(2n),.btn:nth-child(2n){animation-delay:-1.7s!important}
+  .tag:nth-child(3n){animation-delay:-2.9s!important}
   @keyframes neonbig{0%,100%{text-shadow:0 0 6px #39ff14,0 0 18px rgba(57,255,20,.6)}
     50%{text-shadow:0 0 10px #9dff7a,0 0 30px #39ff14,0 0 60px rgba(57,255,20,.75)}}
   p,li,a,h2,h3,.tag,.when,.tech,.prompt,.meta,.k,.role,footer,.btn{animation:neon 3.6s ease-in-out infinite}
@@ -74,7 +83,7 @@
   .wip{color:var(--dim)}
   footer{text-align:center;color:var(--dim);margin-top:48px;font-size:14px}
   .sr{position:absolute;left:-9999px}
-  @media (prefers-reduced-motion:reduce){*{animation-duration:9s!important}.cursor{animation:none} html{scroll-behavior:auto}}
+  @media (prefers-reduced-motion:reduce){*{animation-duration:6s!important}.cursor{animation:none} html{scroll-behavior:auto}}
   @media (max-width:520px){section{padding:16px}}
 </style>
 </head>
@@ -284,6 +293,21 @@
     });
     items.forEach(function(it){
       it.end = it.delay + Math.min(it.text.length * 20, 900) + 600;
+    });
+    // every element (not just text) flickers on as the wave reaches it
+    var els = document.querySelectorAll("nav,section,article,.job header,.tag,.btn,li,h1,h2,h3,p,footer,.skill-row");
+    Array.prototype.forEach.call(els, function(el){
+      if (el.closest(".sr") || !el.animate) return;
+      var y = el.getBoundingClientRect().top + scrollY;
+      var d = Math.min(y, 3000) * 1.1 + Math.random() * 250;
+      el.animate([
+        {opacity:0, filter:"brightness(3)", offset:0},
+        {opacity:.9, filter:"brightness(2.2)", offset:.12},
+        {opacity:.1, filter:"brightness(1.2)", offset:.24},
+        {opacity:1, filter:"brightness(2)", offset:.4},
+        {opacity:.4, filter:"brightness(1.4)", offset:.55},
+        {opacity:1, filter:"brightness(1)", offset:1}
+      ], {duration: 800, delay: d, fill: "backwards", easing: "linear"});
     });
     done();                       // reveal <main>; every text node is hidden or scrambled
     var t0 = performance.now(), last = 0;
