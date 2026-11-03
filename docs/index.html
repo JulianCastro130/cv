@@ -5,12 +5,16 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Julián Castro — MuleSoft Developer</title>
 <meta name="description" content="Julián Castro: Mid-Level MuleSoft Developer & RPA Specialist, Full Stack Web Developer.">
+<script>document.documentElement.className+=' pre'</script>
 <style>
   :root{
     --bg:#010603; --fg:#39ff14; --dim:#27dc69; --faint:#0c6a2c; --hi:#9dff7a;
     --panel:rgba(2,16,8,.82);
   }
   :root,*{forced-color-adjust:none}
+  html.pre main{visibility:hidden}
+  #rain{transition:opacity 3s ease-out}
+  html.pre #rain{opacity:.7}
   *{box-sizing:border-box}
   html{scroll-behavior:smooth;scroll-padding-top:var(--nav-height,100px)}
   body{margin:0;background:var(--bg);color:var(--fg);
@@ -247,6 +251,69 @@
     rainTimer = setInterval(draw, reduce ? 140 : 55);
   }
   startRain();
+})();
+</script>
+<script>
+// Intro: the CV decodes out of the rain, top to bottom.
+(function(){
+  var root = document.documentElement;
+  function done(){ root.classList.remove("pre"); }
+  try {
+    var main = document.querySelector("main");
+    var G = "01<>/{}[]=+*#$%&@;:ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+    var walker = document.createTreeWalker(main, NodeFilter.SHOW_TEXT, {
+      acceptNode: function(n){
+        if (!n.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+        var el = n.parentElement;
+        if (el.closest(".sr,script,#typed,.cursor")) return NodeFilter.FILTER_REJECT;
+        return NodeFilter.FILTER_ACCEPT;
+      }
+    });
+    var list = [], n;
+    while ((n = walker.nextNode())) list.push(n);
+    main.setAttribute("aria-busy","true");
+    var items = list.map(function(node){
+      var span = document.createElement("span");
+      var text = node.nodeValue;
+      node.parentNode.replaceChild(span, node);
+      span.textContent = text;
+      var y = span.getBoundingClientRect().top + scrollY;
+      var offs = []; for (var i = 0; i < text.length; i++) offs.push(Math.random() * 260);
+      span.style.visibility = "hidden";
+      return {span: span, text: text, delay: Math.min(y, 3000) * 0.75, offs: offs, done: false, end: 0};
+    });
+    items.forEach(function(it){
+      it.end = it.delay + Math.min(it.text.length * 14, 700) + 260;
+    });
+    done();                       // reveal <main>; every text node is hidden or scrambled
+    var t0 = performance.now(), last = 0;
+    (function frame(now){
+      var t = now - t0, alive = 0;
+      if (now - last > 45) {
+        last = now;
+        items.forEach(function(it){
+          if (it.done) return;
+          if (t < it.delay) { alive++; return; }
+          if (t >= it.end) { it.span.textContent = it.text; it.span.style.visibility = ""; it.done = true; return; }
+          alive++;
+          var out = "", tx = it.text;
+          for (var i = 0; i < tx.length; i++) {
+            var c = tx[i];
+            out += (/\s/.test(c) || t >= it.delay + Math.min(i * 14, 700) + it.offs[i]) ? c : G[(Math.random() * G.length) | 0];
+          }
+          it.span.textContent = out;
+          it.span.style.visibility = "visible";
+        });
+      } else alive = 1;
+      if (alive) requestAnimationFrame(frame);
+      else {
+        main.removeAttribute("aria-busy");
+        var r = document.getElementById("rain"); if (r) r.style.opacity = "";
+      }
+    })(t0);
+    // let the rain settle after the intro
+    setTimeout(function(){ var r = document.getElementById("rain"); if (r) r.style.opacity = ".22"; }, 1200);
+  } catch (e) { done(); }
 })();
 </script>
 </body>
