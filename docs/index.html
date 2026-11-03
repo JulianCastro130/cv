@@ -25,13 +25,13 @@
   }
   :root,*{forced-color-adjust:none}
   html.pre main{visibility:hidden}
-  #rain{transition:opacity 3s ease-out}
-  html.pre #rain{opacity:.7}
+  #rain,#rain3d{transition:opacity 3s ease-out}
+  html.pre #rain,html.pre #rain3d{opacity:.7}
   *{box-sizing:border-box}
   html{scroll-behavior:smooth;scroll-padding-top:var(--nav-height,100px)}
   body{margin:0;background:var(--bg);color:var(--fg);
     font:16px/1.6 "Fira Code","Cascadia Code",Consolas,"Courier New",monospace}
-  #rain{position:fixed;inset:0;width:100%;height:100%;z-index:0;opacity:.22;pointer-events:none}
+  #rain,#rain3d{position:fixed;inset:0;width:100%;height:100%;z-index:0;opacity:.22;pointer-events:none}
   body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:2;
     background:repeating-linear-gradient(to bottom,rgba(0,0,0,0) 0 2px,rgba(0,0,0,.18) 3px)}
   /* neon: color stays lit, only the glow breathes (never fully off) */
@@ -126,6 +126,7 @@
 </head>
 <body>
 <canvas id="rain" aria-hidden="true"></canvas>
+<canvas id="rain3d" aria-hidden="true" hidden></canvas>
 <nav aria-label="Sections">
   <a href="#about">about</a><a href="#experience">experience</a><a href="#certs">certs</a>
   <a href="#skills">skills</a><a href="#contact">contact</a>
@@ -319,13 +320,19 @@
       drops[i] += 1;
     }
   }
+  var suspended = false;   // true while the WebGL rain (rain3d.js) is live
   function startRain(){
     clearInterval(rainTimer);
-    if (!g || document.hidden) return;
+    if (!g || document.hidden || suspended) return;
     rainTimer = setInterval(draw, reduce ? 140 : 55);
   }
   document.addEventListener("visibilitychange", startRain);
   startRain();
+  var rainEl = document.getElementById("rain");
+  window.rain2d = {setSuspended: function(v){ suspended = v; rainEl.style.display = v ? "none" : ""; startRain(); }};
+  // after first paint, lazily try the 3D rain; the 2D rain above runs until it is live
+  function load3d(){ setTimeout(function(){ import("./rain3d.js").then(function(m){ m.start(); }).catch(function(){}); }, 400); }
+  if (document.readyState === "complete") load3d(); else addEventListener("load", load3d);
 })();
 </script>
 <script>
@@ -402,7 +409,7 @@
       if (alive) requestAnimationFrame(frame);
       else {
         main.removeAttribute("aria-busy");
-        var r = document.getElementById("rain"); if (r) r.style.opacity = "";
+        document.querySelectorAll("#rain,#rain3d").forEach(function(r){ r.style.opacity = ""; });
       }
     })(t0);
     // pause CSS glow animations in sections far from the viewport (battery)
@@ -413,7 +420,7 @@
       Array.prototype.forEach.call(document.querySelectorAll("main > section, main > footer"), function(s){ io.observe(s); });
     }
     // let the rain settle after the intro
-    setTimeout(function(){ var r = document.getElementById("rain"); if (r) r.style.opacity = ".22"; }, 1200);
+    setTimeout(function(){ document.querySelectorAll("#rain,#rain3d").forEach(function(r){ r.style.opacity = ".22"; }); }, 1200);
   } catch (e) { done(); }
 })();
 </script>
