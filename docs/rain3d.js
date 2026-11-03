@@ -54,6 +54,7 @@ function run(THREE, canvas){
   } catch (e) { return; }
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
   renderer.setClearColor(0x000000, 0);
+  renderer.debug.onShaderError = function(){ fallback(); };
 
   // glyph atlas: 8x8 cells, white glyphs on transparent, built from the same char set as the 2D rain
   var cell = 64, atlas = document.createElement("canvas");
@@ -152,7 +153,7 @@ function run(THREE, canvas){
   // performance guard: first cut instances, then give up and hand back to the 2D rain
   var cut = false, bad = 0, acc = 0, frames = 0, warm = 0;
   function perf(dt){
-    if (dt > 0.25) return;                       // tab switch or stall, not a sustained rate
+    if (dt > 0.25) return;                       // raw (unclamped) gap: tab switch or stall, not a sustained rate
     warm += dt; if (warm < 1.5) return;
     acc += dt; frames++;
     if (acc < 2) return;
@@ -168,7 +169,7 @@ function run(THREE, canvas){
   function frame(now){
     if (dead) return;
     raf = requestAnimationFrame(frame);
-    var dt = Math.min((now - last) / 1000, 0.25); last = now;
+    var raw = (now - last) / 1000, dt = Math.min(raw, 0.25); last = now;
     var scale = reduce ? 0.25 : 1;
     tm += dt * scale;
     var dl = reduce ? 0.35 : 1;
@@ -179,14 +180,16 @@ function run(THREE, canvas){
       -sp * 22);
     camera.rotation.set(Math.sin(tm * 0.07) * 0.04 * dl - py * 0.03, -px * 0.04 + Math.cos(tm * 0.05) * 0.03 * dl, 0);
     mat.uniforms.uTime.value = tm;
-    renderer.render(scene, camera);
+    try { renderer.render(scene, camera); } catch (e) { fallback(); return; }
+    if (dead) return;               // shader compile error during that render
     if (!live) goLive();
-    perf(dt);
+    perf(raw);
   }
 
   // first good frame: swap rains (2D stops completely, 3D fades in)
   function goLive(){
     live = true;
+    document.documentElement.classList.add("rain3d");   // stronger rain + lighter panels while 3D is live
     if (rain2d) rain2d.setSuspended(true);
     canvas.hidden = false;
     if (canvas.animate) canvas.animate([{filter: "opacity(0)"}, {filter: "opacity(1)"}], {duration: 900, easing: "ease-out"});
@@ -197,6 +200,7 @@ function run(THREE, canvas){
     dead = true; cancelAnimationFrame(raf);
     try { geo.dispose(); mat.dispose(); tex.dispose(); renderer.dispose(); } catch (e) {}
     canvas.hidden = true;
+    document.documentElement.classList.remove("rain3d");
     if (rain2d) rain2d.setSuspended(false);
   }
 

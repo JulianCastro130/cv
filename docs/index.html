@@ -104,6 +104,10 @@
   .sr{position:absolute;left:-9999px}
   @media (prefers-reduced-motion:reduce){*{animation-duration:6s!important}.cursor{animation:none} html{scroll-behavior:auto}}
   @media (max-width:520px){section{padding:16px}}
+  /* 3D rain live: make the motion read through the panels (2D fallback look is unchanged) */
+  html.rain3d{--panel:rgba(2,16,8,.58)}
+  html.rain3d #rain3d{opacity:.42}
+  html.pre.rain3d #rain3d{opacity:.7}
   .offscreen,.offscreen *{animation-play-state:paused!important}
   @media print{
     html.pre main{visibility:visible}
@@ -420,7 +424,7 @@
       Array.prototype.forEach.call(document.querySelectorAll("main > section, main > footer"), function(s){ io.observe(s); });
     }
     // let the rain settle after the intro
-    setTimeout(function(){ document.querySelectorAll("#rain,#rain3d").forEach(function(r){ r.style.opacity = ".22"; }); }, 1200);
+    setTimeout(function(){ document.querySelectorAll("#rain,#rain3d").forEach(function(r){ r.style.opacity = ""; }); }, 1200);
   } catch (e) { done(); }
 })();
 </script>
