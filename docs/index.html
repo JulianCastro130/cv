@@ -390,6 +390,59 @@
     addEventListener("beforeprint", function(){
       items.forEach(function(it){ it.span.textContent = it.text; it.span.style.visibility = ""; it.done = true; });
     });
+    // section arrival replay (called by stepscroll.js): flicker + decode once per section, on first arrival
+    var replayed = [], replayGen = 0;
+    addEventListener("beforeprint", function(){ replayGen++; items.forEach(function(it){ it.rdone = true; }); });
+    window.sectionReplay = function(sec){
+      if (replayed.indexOf(sec) >= 0) return;
+      replayed.push(sec);
+      if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+      var mine = items.filter(function(it){ return sec.contains(it.span); });
+      if (!mine.length || mine.some(function(it){ return !it.done; })) return;   // intro still decoding it
+      var top = sec.getBoundingClientRect().top + scrollY, gen = replayGen;
+      mine.forEach(function(it){
+        var y = it.span.getBoundingClientRect().top + scrollY - top;
+        it.rdelay = Math.min(Math.max(y, 0), 900) * .5;
+        it.rend = it.rdelay + Math.min(it.text.length * 20, 900) + 500;
+        it.rdone = false; it.span.style.visibility = "hidden";
+      });
+      var fl = sec.querySelectorAll("section,article,.job header,.tag,.btn,li,h1,h2,h3,p,footer,.skill-row");
+      Array.prototype.concat.call([sec], Array.prototype.slice.call(fl)).forEach(function(el){
+        if (el.closest(".sr") || !el.animate) return;
+        var ey = Math.max(0, el.getBoundingClientRect().top + scrollY - top);
+        el.animate([
+          {opacity:0, filter:"brightness(3)", offset:0},
+          {opacity:.9, filter:"brightness(2.2)", offset:.12},
+          {opacity:.1, filter:"brightness(1.2)", offset:.24},
+          {opacity:1, filter:"brightness(2)", offset:.4},
+          {opacity:.4, filter:"brightness(1.4)", offset:.55},
+          {opacity:1, filter:"brightness(1)", offset:1}
+        ], {duration: 800, delay: Math.min(ey, 900) * .5 + Math.random() * 250, fill: "backwards", easing: "linear"});
+      });
+      main.setAttribute("aria-busy", "true");
+      var t0 = performance.now(), last = 0;
+      (function frame(now){
+        if (gen !== replayGen) return;
+        var t = now - t0, alive = 0;
+        if (now - last > 45 || now === t0) {
+          last = now;
+          mine.forEach(function(it){
+            if (it.rdone) return;
+            if (t < it.rdelay) { alive++; return; }
+            if (t >= it.rend) { it.span.textContent = it.text; it.span.style.visibility = ""; it.rdone = true; return; }
+            alive++;
+            var out = "", tx = it.text;
+            for (var i = 0; i < tx.length; i++) {
+              var c = tx[i];
+              out += (/\s/.test(c) || t >= it.rdelay + Math.min(i * 20, 900) + it.offs[i]) ? c : G[(Math.random() * G.length) | 0];
+            }
+            it.span.textContent = out; it.span.style.visibility = "visible";
+          });
+        } else alive = 1;
+        if (alive) requestAnimationFrame(frame);
+        else if (items.every(function(it){ return it.done; })) main.removeAttribute("aria-busy");
+      })(t0);
+    };
     done();                       // reveal <main>; every text node is hidden or scrambled
     var t0 = performance.now(), last = 0;
     (function frame(now){
@@ -428,5 +481,6 @@
   } catch (e) { done(); }
 })();
 </script>
+<script src="stepscroll.js"></script>
 </body>
 </html>
