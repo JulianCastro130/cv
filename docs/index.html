@@ -57,6 +57,7 @@
   nav{position:sticky;top:0;z-index:3;background:rgba(2,10,4,.9);border-bottom:1px solid var(--faint);
     display:flex;gap:6px 18px;flex-wrap:wrap;padding:10px 16px;justify-content:center;font-size:14px}
   a{color:var(--fg);text-decoration:none}
+  li a{animation:none}
   a:hover,a:focus-visible{color:var(--bg);background:var(--fg);outline:none;animation:none;text-shadow:none}
   a:focus-visible{outline:2px solid var(--hi);outline-offset:3px}
   nav a::before{content:"./"; color:var(--dim)}
@@ -73,6 +74,11 @@
   #hero{min-height:78vh;display:flex;flex-direction:column;justify-content:center;
     background:transparent;border:0;box-shadow:none;padding:0}
   .role{color:var(--fg);font-size:clamp(15px,2.6vw,20px);min-height:1.6em}
+  .role,#role-size{display:grid}
+  .role>span,#role-size>span{grid-area:1/1;min-width:0}
+  #role-size{visibility:hidden;pointer-events:none}
+  #role-size>span::before{content:attr(data-role)}
+  #role-size .cursor{animation:none}
   .cursor{display:inline-block;width:.6em;height:1.1em;background:var(--fg);vertical-align:-.2em;
     animation:blink 1s steps(2) infinite}
   @keyframes blink{50%{opacity:0}}
@@ -111,7 +117,7 @@
   <section id="hero">
     <p class="prompt">root@neo:~$ <b>whoami</b></p>
     <h1>JULIÁN CASTRO</h1>
-    <p class="role" aria-hidden="true"><span id="typed">Mid-Level MuleSoft Developer &amp; RPA Specialist</span><span class="cursor" aria-hidden="true"></span></p>
+    <p class="role" aria-hidden="true"><span><span id="typed">Mid-Level MuleSoft Developer &amp; RPA Specialist</span><span class="cursor" aria-hidden="true"></span></span><span id="role-size"></span></p>
     <p class="sr">Mid-Level MuleSoft Developer and RPA Specialist, Full Stack Web Developer</p>
     <p class="meta">Buenos Aires, Argentina · Spanish (native) · English C1</p>
     <div class="cta">
@@ -224,6 +230,17 @@
   // Typed role line
   var lines = ["Mid-Level MuleSoft Developer & RPA Specialist","Full Stack Web Developer","API-led integration · Core banking · AI agents"];
   var el = document.getElementById("typed");
+  // Reserve every wrapped role, including the cursor. Generated text keeps the
+  // hidden sizing samples out of the intro's text-node decoder.
+  var roleSize = document.getElementById("role-size");
+  lines.concat([lines[0] + " · " + lines[1]]).forEach(function(line){
+    var sample = document.createElement("span");
+    sample.setAttribute("data-role", line);
+    var cursor = document.createElement("span");
+    cursor.className = "cursor";
+    sample.appendChild(cursor);
+    roleSize.appendChild(sample);
+  });
   function startTyping(){
     clearTimeout(typingTimer);
     if (reduce) { el.textContent = lines[0] + " · " + lines[1]; return; }
@@ -269,9 +286,10 @@
   }
   function startRain(){
     clearInterval(rainTimer);
-    if (!g) return;
+    if (!g || document.hidden) return;
     rainTimer = setInterval(draw, reduce ? 140 : 55);
   }
+  document.addEventListener("visibilitychange", startRain);
   startRain();
 })();
 </script>
