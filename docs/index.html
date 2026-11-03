@@ -98,6 +98,7 @@
   .sr{position:absolute;left:-9999px}
   @media (prefers-reduced-motion:reduce){*{animation-duration:6s!important}.cursor{animation:none} html{scroll-behavior:auto}}
   @media (max-width:520px){section{padding:16px}}
+  .offscreen,.offscreen *{animation-play-state:paused!important}
   @media print{
     html.pre main{visibility:visible}
     *,*::before,*::after{animation:none!important;text-shadow:none!important;box-shadow:none!important;
@@ -386,6 +387,13 @@
         var r = document.getElementById("rain"); if (r) r.style.opacity = "";
       }
     })(t0);
+    // pause CSS glow animations in sections far from the viewport (battery)
+    if ("IntersectionObserver" in window) {
+      var io = new IntersectionObserver(function(entries){
+        entries.forEach(function(e){ e.target.classList.toggle("offscreen", !e.isIntersecting); });
+      }, {rootMargin: "100% 0px 100% 0px"});
+      Array.prototype.forEach.call(document.querySelectorAll("main > section, main > footer"), function(s){ io.observe(s); });
+    }
     // let the rain settle after the intro
     setTimeout(function(){ var r = document.getElementById("rain"); if (r) r.style.opacity = ".22"; }, 1200);
   } catch (e) { done(); }
