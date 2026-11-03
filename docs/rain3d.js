@@ -39,8 +39,7 @@ export function start(){
 
 function run(THREE, canvas){
   var rain2d = window.rain2d;
-  var motionQ = matchMedia("(prefers-reduced-motion: reduce)");
-  var reduce = motionQ.matches;
+  var reduce = window.motion.reduced();
   var phone = Math.min(screen.width, screen.height) < 600 || matchMedia("(pointer: coarse)").matches;
   var finePointer = matchMedia("(hover: hover) and (pointer: fine)").matches;
   var COLS = phone ? 40 : 120, LEN = phone ? 20 : 25;     // 800 / 3000 instances
@@ -137,7 +136,7 @@ function run(THREE, canvas){
   });
   size();
 
-  // input: pointer parallax (fine pointers only) and scroll dive; neither runs under reduced motion
+  // input: pointer parallax (fine pointers only) and scroll dive; neither runs under reduced motion (window.motion, live)
   var px = 0, py = 0, tx = 0, ty = 0, sp = 0, ts = 0;
   if (finePointer) addEventListener("pointermove", function(e){
     if (e.pointerType && e.pointerType !== "mouse") return;
@@ -148,7 +147,7 @@ function run(THREE, canvas){
     return max > 0 ? Math.min(1, Math.max(0, scrollY / max)) : 0;
   }
 
-  motionQ.addEventListener("change", function(e){ reduce = e.matches; });
+  window.motion.onChange(function(r){ reduce = r; });
 
   // performance guard: first cut instances, then give up and hand back to the 2D rain
   var cut = false, bad = 0, acc = 0, frames = 0, warm = 0;

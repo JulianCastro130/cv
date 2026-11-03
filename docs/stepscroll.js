@@ -15,8 +15,8 @@
   if (stops.some(function(s){ return !s.el; }) || !nav) return;
 
   var TOL = 4, THRESH = 30, PAD = 8, GAP_MS = 80;
-  var motionQ = matchMedia("(prefers-reduced-motion: reduce)");
-  function reduce(){ return motionQ.matches; }
+  function reduce(){ return !!(window.motion && window.motion.reduced()); }   // single source of truth, read live
+  if (window.motion) window.motion.onChange(function(r){ if (r) finishTween(); });
   function now(){ return performance.now(); }
   // pinch-zoomed: panning must stay fully native
   function zoomed(){ return !!(window.visualViewport && window.visualViewport.scale > 1.01); }

@@ -18,6 +18,33 @@
 <meta name="twitter:image" content="https://juliancastro130.github.io/cv/og.png">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='10' fill='%23010603'/%3E%3Ctext x='32' y='47' font-family='monospace' font-size='44' font-weight='bold' text-anchor='middle' fill='%2339ff14'%3EJ%3C/text%3E%3C/svg%3E">
 <script>document.documentElement.className+=' pre'</script>
+<script>
+// Single source of truth for reduced motion: window.motion. Default (nothing stored) follows the OS
+// preference live; an explicit choice is stored in localStorage (in memory only if storage is blocked).
+(function(){
+  var root = document.documentElement, KEY = "motion", pref = null, subs = [];
+  var mq = window.matchMedia ? matchMedia("(prefers-reduced-motion: reduce)") : null;
+  try { var v = localStorage.getItem(KEY); if (v === "full" || v === "reduced") pref = v; } catch (e) {}
+  function reduced(){ return pref ? pref === "reduced" : !!(mq && mq.matches); }
+  function emit(){
+    var r = reduced();
+    root.classList.toggle("motion-reduced", r); root.classList.toggle("motion-full", !r);
+    subs.slice().forEach(function(fn){ try { fn(r); } catch (e) {} });
+  }
+  window.motion = {
+    reduced: reduced,
+    preference: function(){ return pref; },
+    set: function(v){
+      pref = (v === "full" || v === "reduced") ? v : null;
+      try { if (pref) localStorage.setItem(KEY, pref); else localStorage.removeItem(KEY); } catch (e) {}
+      emit();
+    },
+    onChange: function(fn){ subs.push(fn); }
+  };
+  if (mq) { if (mq.addEventListener) mq.addEventListener("change", emit); else if (mq.addListener) mq.addListener(emit); }
+  root.classList.toggle("motion-reduced", reduced()); root.classList.toggle("motion-full", !reduced());
+})();
+</script>
 <style>
   :root{
     --bg:#010603; --fg:#39ff14; --dim:#27dc69; --faint:#0c6a2c; --hi:#9dff7a;
@@ -102,7 +129,21 @@
   .wip{color:var(--dim)}
   footer{text-align:center;color:var(--dim);margin-top:48px;font-size:14px}
   .sr{position:absolute;left:-9999px}
-  @media (prefers-reduced-motion:reduce){*{animation-duration:6s!important}.cursor{animation:none} html{scroll-behavior:auto}}
+  /* calm variant: JS sets html.motion-reduced / html.motion-full; the media query is only the no-JS default */
+  :where(html.motion-reduced) *{animation-duration:6s!important}
+  :where(html.motion-reduced) .cursor{animation:none}
+  html.motion-reduced{scroll-behavior:auto}
+  @media (prefers-reduced-motion:reduce){
+    :where(html:not(.motion-full):not(.motion-reduced)) *{animation-duration:6s!important}
+    :where(html:not(.motion-full):not(.motion-reduced)) .cursor{animation:none}
+    html:not(.motion-full):not(.motion-reduced){scroll-behavior:auto}
+  }
+  .motion-ctl{white-space:nowrap;color:var(--dim)}
+  .motion-ctl button{font:inherit;color:var(--dim);background:none;border:1px solid var(--faint);padding:0 8px;margin:0 2px;cursor:pointer;line-height:1.4}
+  .motion-ctl button:hover{color:var(--fg);border-color:var(--fg)}
+  .motion-ctl button:focus-visible{outline:2px solid var(--hi);outline-offset:2px}
+  .motion-ctl button[aria-pressed="true"]{background:var(--fg);color:var(--bg);border-color:var(--fg);text-decoration:underline}
+  .motion-ctl button[aria-pressed="true"]::before{content:"● "}
   @media (max-width:520px){section{padding:16px}}
   /* 3D rain live: make the motion read through the panels (2D fallback look is unchanged) */
   html.rain3d{--panel:rgba(2,16,8,.58)}
@@ -239,13 +280,25 @@
 
 <script>
 (function(){
-  var motion = window.matchMedia("(prefers-reduced-motion: reduce)");
-  var reduce = motion.matches;
+  var M = window.motion;
+  var reduce = M.reduced();
   var typingTimer, rainTimer;
   var nav = document.querySelector("nav");
   function measureNav(){
     document.documentElement.style.setProperty("--nav-height", (nav.getBoundingClientRect().height + 16) + "px");
   }
+  // motion control: [ motion: full | reduced ]
+  var ctl = document.createElement("span");
+  ctl.className = "motion-ctl"; ctl.setAttribute("role", "group"); ctl.setAttribute("aria-label", "Motion");
+  ctl.innerHTML = '<span aria-hidden="true">[ motion:</span> <button type="button" data-m="full">full</button><span aria-hidden="true">|</span><button type="button" data-m="reduced">reduced</button> <span aria-hidden="true">]</span>';
+  nav.appendChild(ctl);
+  function syncCtl(){
+    Array.prototype.forEach.call(ctl.querySelectorAll("button"), function(b){
+      b.setAttribute("aria-pressed", String((b.getAttribute("data-m") === "reduced") === M.reduced()));
+    });
+  }
+  ctl.addEventListener("click", function(e){ var b = e.target.closest("button"); if (b) M.set(b.getAttribute("data-m")); });
+  M.onChange(syncCtl); syncCtl();
   measureNav();
   if (window.ResizeObserver) new ResizeObserver(measureNav).observe(nav);
   else addEventListener("resize", measureNav);
@@ -281,8 +334,8 @@
   // print: show the full role line instead of whatever the typewriter is on
   addEventListener("beforeprint", function(){ clearTimeout(typingTimer); el.textContent = lines[0] + " · " + lines[1]; });
   addEventListener("afterprint", startTyping);
-  motion.addEventListener("change", function(event){
-    reduce = event.matches;
+  M.onChange(function(r){
+    reduce = r;
     startTyping();
     startRain();
   });
@@ -396,7 +449,7 @@
     window.sectionReplay = function(sec){
       if (replayed.indexOf(sec) >= 0) return;
       replayed.push(sec);
-      if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+      if (window.motion.reduced()) return;
       var mine = items.filter(function(it){ return sec.contains(it.span); });
       if (!mine.length || mine.some(function(it){ return !it.done; })) return;   // intro still decoding it
       var top = sec.getBoundingClientRect().top + scrollY, gen = replayGen;
