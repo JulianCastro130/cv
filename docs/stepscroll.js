@@ -14,7 +14,7 @@
   });
   if (stops.some(function(s){ return !s.el; }) || !nav) return;
 
-  var TOL = 4, THRESH = 30, PAD = 8, GAP_MS = 80;
+  var TOL = 4, THRESH = 30, WHEEL_THRESH = 15, PAD = 8, GAP_MS = 80;   // THRESH = touch
   function reduce(){ return !!(window.motion && window.motion.reduced()); }   // single source of truth, read live
   if (window.motion) window.motion.onChange(function(r){ if (r) finishTween(); });
   function now(){ return performance.now(); }
@@ -25,6 +25,20 @@
   var st = document.createElement("style");
   st.textContent = "section:focus{outline:none}";
   document.head.appendChild(st);
+
+  // ---- bottom space so the last unit (contact + footer) can be centered like the others ----
+  var padRaf = 0;
+  function setEndPad(){
+    var last = stops[stops.length - 1], top = Infinity, bottom = -Infinity;
+    last.els.forEach(function(el){ var q = el.getBoundingClientRect(); top = Math.min(top, q.top); bottom = Math.max(bottom, q.bottom); });
+    var avail = innerHeight - nav.getBoundingClientRect().height;
+    var pad = Math.max(80, Math.ceil((avail - (bottom - top)) / 2));
+    if (doc.style.getPropertyValue("--end-pad") !== pad + "px") doc.style.setProperty("--end-pad", pad + "px");
+  }
+  setEndPad();
+  addEventListener("load", setEndPad);
+  if (window.ResizeObserver) new ResizeObserver(function(){ cancelAnimationFrame(padRaf); padRaf = requestAnimationFrame(setEndPad); }).observe(nav);
+  addEventListener("resize", function(){ cancelAnimationFrame(padRaf); padRaf = requestAnimationFrame(setEndPad); });
 
   // ---- layout: each stop gets a resting interval [lo, hi] of scrollY, recomputed from live rects ----
   // short section (fits under the nav): lo = hi = centered position; tall: lo = top aligned, hi = bottom aligned
@@ -87,7 +101,7 @@
     if (i <= 0 || reduce() || !window.sectionReplay) return;
     stops[i].els.forEach(function(el){ try { window.sectionReplay(el); } catch (e) {} });
   }
-  function goTo(y, i, instant){
+  function goTo(y, i, instant, dur){
     cancelTween();
     var max = Math.max(0, doc.scrollHeight - innerHeight);
     y = Math.min(max, Math.max(0, y));
@@ -96,7 +110,7 @@
     function land(){ lastLand = {y: scrollY}; }
     if (dist < 1) { land(); return; }
     if (instant || reduce() || document.hidden) { jump(y); lastLand = {y: y}; return; }
-    var dur = 500 + Math.min(100, dist / 10), t0 = 0;
+    dur = dur || 500 + Math.min(100, dist / 10); var t0 = 0;
     tweening = true;
     tweenDone = function(){ jump(y); lastLand = {y: y}; };
     raf = requestAnimationFrame(function tick(t){
@@ -140,9 +154,9 @@
     }
     e.preventDefault();
     if (locked) return;
-    if (accDir !== d || gap > 250) acc = 0;
+    if (accDir !== d || gap > 400) acc = 0;
     accDir = d; acc += abs;
-    if (acc >= THRESH) { lock(d, abs); step(dec); }
+    if (acc >= WHEEL_THRESH) { lock(d, abs); step(dec); }
   }, {passive: false});
 
   // ---- touch ----
@@ -191,7 +205,14 @@
     L = layout();
     var dec = decide(d, scrollY, L);
     if (!dec) return;
-    if (dec.native) { lastNativeAt = now(); return; }
+    if (dec.native) {
+      // inside a tall section: our own clamped movement instead of native key scrolling (which can overshoot the edge)
+      var amt = (k === "ArrowDown" || k === "ArrowUp") ? 80 : Math.round(.85 * (innerHeight - nav.getBoundingClientRect().height));
+      var ny = d > 0 ? Math.min(scrollY + amt, dec.clamp) : Math.max(scrollY - amt, dec.clamp);
+      e.preventDefault(); lastNativeAt = now();
+      goTo(ny, -1, false, 140 + Math.abs(ny - scrollY) * .35);
+      return;
+    }
     e.preventDefault(); step(dec);
   });
 
