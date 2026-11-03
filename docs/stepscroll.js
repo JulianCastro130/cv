@@ -8,13 +8,11 @@
   var ids = ["hero", "about", "experience", "certs", "skills", "contact"];
   var stops = ids.map(function(id){
     var el = document.getElementById(id);
-    var els = [el];
-    if (id === "contact") { var f = document.querySelector("main > footer"); if (f) els.push(f); }  // contact + footer = one unit
-    return {id: id, el: el, els: els};
+    return {id: id, el: el, els: [el]};
   });
   if (stops.some(function(s){ return !s.el; }) || !nav) return;
 
-  var TOL = 4, THRESH = 30, WHEEL_THRESH = 15, PAD = 8, GAP_MS = 80;   // THRESH = touch
+  var TOL = 4, THRESH = 30, WHEEL_THRESH = 15, GAP_MS = 80;   // THRESH = touch
   function reduce(){ return !!(window.motion && window.motion.reduced()); }   // single source of truth, read live
   if (window.motion) window.motion.onChange(function(r){ if (r) finishTween(); });
   function now(){ return performance.now(); }
@@ -26,39 +24,39 @@
   st.textContent = "section:focus{outline:none}";
   document.head.appendChild(st);
 
-  // ---- bottom space so the last unit (contact + footer) can be centered like the others ----
-  var padRaf = 0;
-  function setEndPad(){
-    var last = stops[stops.length - 1], top = Infinity, bottom = -Infinity;
-    last.els.forEach(function(el){ var q = el.getBoundingClientRect(); top = Math.min(top, q.top); bottom = Math.max(bottom, q.bottom); });
-    var avail = innerHeight - nav.getBoundingClientRect().height;
-    var pad = Math.max(80, Math.ceil((avail - (bottom - top)) / 2));
-    if (doc.style.getPropertyValue("--end-pad") !== pad + "px") doc.style.setProperty("--end-pad", pad + "px");
-  }
-  setEndPad();
-  addEventListener("load", setEndPad);
-  if (window.ResizeObserver) new ResizeObserver(function(){ cancelAnimationFrame(padRaf); padRaf = requestAnimationFrame(setEndPad); }).observe(nav);
-  addEventListener("resize", function(){ cancelAnimationFrame(padRaf); padRaf = requestAnimationFrame(setEndPad); });
-
   // ---- layout: each stop gets a resting interval [lo, hi] of scrollY, recomputed from live rects ----
-  // short section (fits under the nav): lo = hi = centered position; tall: lo = top aligned, hi = bottom aligned
+  // Every section is one page tall (CSS centers its content), so landing is always top-aligned: lo = top - navH.
+  // A section that fits (within 1px of the area under the nav) has lo = hi; a tall one scrolls from lo to hi = bottom - vh.
+  // Positions are whole CSS pixels (nav height and page height are integers, so seams are too); see measureNav in index.html.
+  function snap(y){ return Math.round(y); }
   function layout(){
     var vh = innerHeight, navH = nav.getBoundingClientRect().height, avail = vh - navH;
     var max = Math.max(0, doc.scrollHeight - vh);
     function clamp(y){ return Math.min(max, Math.max(0, y)); }
-    return stops.map(function(s, idx){
-      var top = Infinity, bottom = -Infinity;
-      s.els.forEach(function(el){
-        var r = el.getBoundingClientRect();
-        top = Math.min(top, r.top + scrollY); bottom = Math.max(bottom, r.bottom + scrollY);
-      });
-      var h = bottom - top, lo, hi;
-      if (h <= avail) lo = hi = clamp(top - navH - (avail - h) / 2);
-      else { lo = clamp(top - navH - PAD); hi = Math.max(lo, clamp(bottom - vh + PAD)); }
-      if (idx === 0) { hi = hi > lo ? hi : 0; lo = 0; }   // first stop always starts at the very top
+    return stops.map(function(s){
+      var r = s.el.getBoundingClientRect(), top = r.top + scrollY, bottom = r.bottom + scrollY;
+      var lo = clamp(snap(top - navH)), hi = lo;
+      if (bottom - top > avail + 1) hi = Math.max(lo, clamp(snap(bottom - vh)));
       return {lo: lo, hi: hi, tall: hi > lo, s: s};
     });
   }
+
+  // ---- whole-pixel heights: content-sized (tall) sections have fractional heights, which would make every later top fractional
+  // (a sub-pixel row of the neighbour at the seam). Round such a section up to a whole pixel; sections of exactly one page are left alone.
+  var fitRaf = 0;
+  function fitHeights(){
+    stops.forEach(function(s){
+      var el = s.el;
+      if (el.style.minHeight) el.style.minHeight = "";
+      var h = el.getBoundingClientRect().height;
+      if (Math.abs(h - Math.round(h)) > .01) el.style.minHeight = Math.ceil(h) + "px";
+    });
+  }
+  function queueFit(){ cancelAnimationFrame(fitRaf); fitRaf = requestAnimationFrame(fitHeights); }
+  fitHeights();
+  addEventListener("load", fitHeights);
+  addEventListener("resize", queueFit);
+  if (window.ResizeObserver) { var fro = new ResizeObserver(queueFit); stops.forEach(function(s){ fro.observe(s.el); }); }
 
   // THE shared decision for any input. d = +1 down, -1 up, y = scrollY.
   // returns {target, i} to step, {native:true, clamp} to scroll natively, or null at the page edges
@@ -101,18 +99,19 @@
     if (i <= 0 || reduce() || !window.sectionReplay) return;
     stops[i].els.forEach(function(el){ try { window.sectionReplay(el); } catch (e) {} });
   }
-  function goTo(y, i, instant, dur){
+  // re (optional): returns the freshly measured target; used when the tween ends so a layout that moved meanwhile is corrected
+  function goTo(y, i, instant, dur, re){
     cancelTween();
-    var max = Math.max(0, doc.scrollHeight - innerHeight);
-    y = Math.min(max, Math.max(0, y));
+    function fix(v){ var mx = Math.max(0, doc.scrollHeight - innerHeight); return Math.min(mx, Math.max(0, v)); }
+    y = fix(y);
     if (i >= 0) arrive(i);
     var from = scrollY, dist = Math.abs(y - from);
-    function land(){ lastLand = {y: scrollY}; }
-    if (dist < 1) { land(); return; }
-    if (instant || reduce() || document.hidden) { jump(y); lastLand = {y: y}; return; }
+    function end(){ var ny = re ? fix(re()) : y; if (Math.abs(ny - scrollY) > .01) jump(ny); lastLand = {y: scrollY}; }
+    if (dist < .01) { end(); return; }
+    if (instant || dist < 4 || reduce() || document.hidden) { jump(y); end(); return; }
     dur = dur || 500 + Math.min(100, dist / 10); var t0 = 0;
     tweening = true;
-    tweenDone = function(){ jump(y); lastLand = {y: y}; };
+    tweenDone = end;
     raf = requestAnimationFrame(function tick(t){
       if (!tweening) return;
       if (!t0) t0 = t;
@@ -120,15 +119,15 @@
       progUntil = now() + 120;
       scrollTo({top: from + (y - from) * e, left: 0, behavior: "instant"});
       if (p < 1) raf = requestAnimationFrame(tick);
-      else { tweening = false; tweenDone = null; lastLand = {y: scrollY}; }
+      else { tweening = false; tweenDone = null; jump(y); end(); }
     });
   }
   document.addEventListener("visibilitychange", function(){ if (document.hidden) finishTween(); });
 
-  function step(dec){ goTo(dec.target, dec.i, false); }
+  function step(dec){ goTo(dec.target, dec.i, false, 0, function(){ return layout()[dec.i].lo; }); }
 
   // ---- gesture state shared by wheel ----
-  var lastWheelT = 0, locked = false, lockDir = 0, minAbs = Infinity, acc = 0, accDir = 0, lastNativeAt = 0;
+  var lastWheelT = 0, locked = false, lockDir = 0, minAbs = Infinity, acc = 0, accDir = 0, lastNativeAt = -1e9;
   function lock(d, abs){ locked = true; lockDir = d; minAbs = abs; acc = 0; }
 
   addEventListener("wheel", function(e){
@@ -226,7 +225,7 @@
     var i = id ? ids.indexOf(id) : 0;
     if (i < 0) return false;
     var L = layout();
-    goTo(L[i].lo, i, instant);
+    goTo(L[i].lo, i, instant, 0, function(){ return layout()[i].lo; });
     return true;
   }
   document.addEventListener("click", function(e){
@@ -252,7 +251,7 @@
   // ---- settle: native scrolling that overshot a tall section's edge comes back (or moves on) once input stops ----
   var idle = 0;
   addEventListener("mousedown", function(e){
-    if (e.target === doc && e.clientX >= doc.clientWidth) { lastNativeAt = 0; cancelTween(); }   // scrollbar drag stays native
+    if (e.target === doc && e.clientX >= doc.clientWidth) { lastNativeAt = -1e9; cancelTween(); }   // scrollbar drag stays native
   });
   addEventListener("scroll", function(){
     if (tweening || now() < progUntil) return;

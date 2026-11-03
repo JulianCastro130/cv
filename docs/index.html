@@ -55,7 +55,8 @@
   #rain,#rain3d{transition:opacity 3s ease-out}
   html.pre #rain,html.pre #rain3d{opacity:.7}
   *{box-sizing:border-box}
-  html{scroll-behavior:smooth;scroll-padding-top:var(--nav-height,100px)}
+  /* overflow-anchor:none: the decode/replay changes line wraps in the section on screen, and scroll anchoring then moved scrollY by a line */
+  html{scroll-behavior:smooth;scroll-padding-top:var(--nav-height,100px);overflow-anchor:none}
   body{margin:0;background:var(--bg);color:var(--fg);
     font:16px/1.6 "Fira Code","Cascadia Code",Consolas,"Courier New",monospace}
   #rain,#rain3d{position:fixed;inset:0;width:100%;height:100%;z-index:0;opacity:.22;pointer-events:none}
@@ -80,7 +81,7 @@
   li:nth-child(2n),.tag:nth-child(2n),p:nth-of-type(2n){animation-duration:4.4s;animation-delay:-1.3s}
   li:nth-child(3n),.tag:nth-child(3n),h3{animation-duration:5.2s;animation-delay:-2.6s}
   h1{animation:neonbig 3s ease-in-out infinite}
-  main{position:relative;z-index:1;max-width:900px;margin:0 auto;padding:0 16px var(--end-pad,80px);overflow-wrap:anywhere}
+  main{position:relative;z-index:1;max-width:900px;margin:0 auto;padding:0 16px;overflow-wrap:anywhere}
   nav{position:sticky;top:0;z-index:3;background:rgba(2,10,4,.9);border-bottom:1px solid var(--faint);
     display:flex;gap:6px 18px;flex-wrap:wrap;padding:10px 16px;justify-content:center;font-size:14px}
   a{color:var(--fg);text-decoration:none}
@@ -152,7 +153,21 @@
   html.rain3d #rain3d{opacity:.42}
   html.pre.rain3d #rain3d{opacity:.7}
   .offscreen,.offscreen *{animation-play-state:paused!important}
-  /* desktop (>=1024px, screen only): wide container, fluid type, split hero, multi-column sections */
+  /* full-page sections (screen only): every section is exactly one page tall, directly under the nav, no gaps.
+     --nav-h is the real nav height (set live by script, whole device pixels); --nav-height (+16) stays for scroll-padding only. */
+  :root{--nav-h:44px;--page-h:calc(100vh - var(--nav-h));--bar-gap:0px}
+  @supports (height:100svh){:root{--page-h:calc(100svh - var(--nav-h));--bar-gap:calc(100lvh - 100svh)}}
+  @media screen{
+    main{padding-bottom:var(--bar-gap)}
+    main>section{min-height:var(--page-h);margin:0 0 var(--bar-gap);box-sizing:border-box;display:flex;flex-direction:column;
+      justify-content:center;clip-path:inset(0 -80px)}
+    main>section:last-of-type{margin-bottom:0}
+    #hero{min-height:var(--page-h)}
+    main>section>p,main>section>ul{margin-top:0;margin-bottom:12px}
+    #contact>.pg{flex:1;display:flex;flex-direction:column;justify-content:center}
+    #contact>footer{margin-top:16px}
+  }
+  /* desktop (>=1024px, screen only): wide container, scaled type, split hero, multi-column full-page sections */
   .term{display:none}
   @media screen and (min-width:1024px){
     html{--fs:clamp(17px,.6vw + 11px,20px);--fs-sm:calc(var(--fs)*.86)}
@@ -161,22 +176,27 @@
     html.pre.rain3d #rain3d{opacity:.7}
     body{font-size:var(--fs)}
     nav{font-size:var(--fs-sm);padding:14px 24px;gap:8px 30px}
-    main{max-width:1200px;padding:0 40px var(--end-pad,80px)}
-    section{margin-top:clamp(88px,15vh,160px);padding:34px 40px}
-    footer{margin-top:72px;font-size:var(--fs-sm)}
+    main{max-width:min(1500px,100%);padding:0 clamp(24px,3vw,56px) var(--bar-gap)}
+    main>section{--fs-sm:max(14px,calc(var(--fs)*.86));font-size:var(--fs);padding:clamp(20px,3.4vh,44px) clamp(28px,3.4vw,64px)}
+    #hero{--fs:clamp(16px,min(1.2vw,2.3vh),24px)}
+    #about{--fs:clamp(17px,min(1.8vw,3.1vh),32px)}
+    #experience{--fs:clamp(14px,min(1.25vw,2.15vh),20px)}
+    #certs{--fs:clamp(17px,min(1.9vw,3.4vh),34px)}
+    #skills{--fs:clamp(15px,min(1.55vw,2.85vh),30px)}
+    #contact{--fs:clamp(16px,min(1.55vw,2.9vh),24px)}
+    footer{margin-top:1em;font-size:var(--fs-sm)}
     .prompt,.when,.tech,.tag,.skill-row .k{font-size:var(--fs-sm)}
-    .prompt{margin-bottom:16px}
-    h2{font-size:1.4em;margin-bottom:20px}
+    .prompt{margin-bottom:.9em}
+    h2{font-size:1.45em;margin-bottom:.8em}
     .job h3{font-size:1.14em}
-    .tag{padding:3px 12px}
-    .btn{padding:11px 24px}
-    .meta{font-size:1em;margin-top:10px;text-wrap:balance}
-    li{margin:7px 0}
-    .tech{margin-top:14px}
+    .tag{padding:.15em .75em}
+    .btn{padding:.65em 1.4em}
+    .meta{font-size:1em;margin-top:.6em;text-wrap:balance}
+    li{margin:.35em 0}
+    .tech{margin-top:.8em}
     /* hero: name, role, meta, CTA on the left; decorative terminal on the right */
     #hero{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);grid-template-rows:repeat(5,auto);
-      column-gap:clamp(40px,5vw,80px);align-content:center;justify-content:normal;margin-top:0;
-      min-height:calc(100vh - var(--nav-height,100px) + 16px)}
+      column-gap:clamp(40px,5vw,80px);align-content:center;justify-content:normal;padding-top:0;padding-bottom:0}
     #hero{background:radial-gradient(ellipse 62% 70% at 26% 50%,rgba(1,6,3,.78),rgba(1,6,3,.5) 55%,rgba(1,6,3,0) 100%)}
     #hero>*{grid-column:1}
     #hero>.term{grid-column:2;grid-row:1/span 5;align-self:center}
@@ -192,22 +212,24 @@
     .tl .tk{color:var(--dim)}
     .term .tags{margin:16px 0 6px}
     /* about: two columns */
-    #about{display:grid;grid-template-columns:1fr 1fr;column-gap:48px}
+    #about{display:grid;grid-template-columns:1fr 1fr;column-gap:3em;align-content:center}
     #about>.prompt,#about>h2{grid-column:1/-1}
     #about>p{margin:0}
-    /* experience: CloudGaia spans two rows on the left, the other two stack on the right */
-    #experience{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:24px 36px}
+    /* experience: three unequal columns (CloudGaia has the most text), one page, nothing cut */
+    #experience{display:grid;grid-template-columns:minmax(0,1.8fr) minmax(0,1fr) minmax(0,.8fr);gap:.6em 1em;align-content:center;line-height:1.38}
     #experience>.prompt,#experience>h2{grid-column:1/-1}
-    #experience>.prompt{margin-bottom:-12px}
+    #experience>.prompt{margin-bottom:-.2em}
     #experience>h2{margin-bottom:0}
-    #experience>.job{margin:0;border:1px solid var(--faint);background:rgba(0,0,0,.28);padding:22px 26px}
-    #experience>.job:nth-of-type(1){grid-column:1;grid-row:3/span 2}
-    #experience>.job:nth-of-type(2){grid-column:2;grid-row:3}
-    #experience>.job:nth-of-type(3){grid-column:2;grid-row:4}
+    #experience>.job{margin:0;border:1px solid var(--faint);background:rgba(0,0,0,.28);padding:.75em 1em;grid-row:3}
+    #experience>.job:nth-of-type(1){grid-column:1}
+    #experience>.job:nth-of-type(2){grid-column:2}
+    #experience>.job:nth-of-type(3){grid-column:3}
+    #experience li{margin:.2em 0}
+    #experience .tech{margin-top:.5em}
     /* certs: Certifications | Education */
-    #certs{display:grid;grid-template-columns:1fr 1fr;column-gap:56px;align-content:start}
+    #certs{display:grid;grid-template-columns:1fr 1fr;column-gap:3.5em;align-content:center}
     #certs>.prompt{grid-column:1/-1}
-    #certs>h2{margin-top:0!important;margin-bottom:12px}
+    #certs>h2{margin-top:0!important;margin-bottom:.6em}
     #certs>ul{margin-top:0}
     #certs>h2:nth-of-type(1),#certs>ul:nth-of-type(1){grid-column:1}
     #certs>h2:nth-of-type(2),#certs>ul:nth-of-type(2){grid-column:2}
@@ -216,13 +238,13 @@
     #certs>h2:nth-of-type(2){grid-row:2}
     #certs>ul:nth-of-type(2){grid-row:3}
     /* skills: grid of rows */
-    #skills{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:6px 40px}
+    #skills{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.4em 2.2em;align-content:center}
     #skills>.prompt,#skills>h2{grid-column:1/-1}
-    .skill-row{margin:10px 0}
+    .skill-row{margin:.7em 0}
     /* contact: three cards across */
-    #contact ul{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px;margin:6px 0 0}
-    #contact li{margin:0;border:1px solid var(--faint);background:rgba(0,0,0,.28);padding:18px 14px 18px 38px}
-    #contact li::before{left:16px;top:18px}
+    #contact ul{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1.2em;margin:.4em 0 0}
+    #contact li{margin:0;border:1px solid var(--faint);background:rgba(0,0,0,.28);padding:1.6em .8em 1.6em 2.3em}
+    #contact li::before{left:.9em;top:1.6em}
     #contact li a{font-size:.9em;display:block}
   }
   @media print{
@@ -234,6 +256,7 @@
     #rain,#rain3d,#role-size,nav,.cursor,.cta,.term,body::after,.sr{display:none!important}
     main{max-width:none;padding:0;overflow-wrap:normal}
     main span{visibility:visible!important}
+    main>section{min-height:0!important;margin:0 0 0;clip-path:none}
     section{background:#fff!important;border:0;border-top:1px solid #999;padding:10px 0;margin-top:14px}
     #hero{min-height:0;padding:0;border:0}
     h1,h2,h3,p,li,a,.prompt,.prompt b,.when,.tech,.tech span,.meta,.k,.role,.wip,footer,.tag,li::before,h2::before{color:#000!important;background:none!important}
@@ -251,6 +274,30 @@
   <a href="#about">about</a><a href="#experience">experience</a><a href="#certs">certs</a>
   <a href="#skills">skills</a><a href="#contact">contact</a>
 </nav>
+<script>
+// Motion control + real nav height, created right after the nav so the first paint already has the final size.
+// --nav-h = nav height rounded up to whole CSS pixels (the nav is given that height): with integer section heights every seam is an integer,
+// which is also where scroll positions land (scroll offsets are whole CSS px in some browsers and whole device px in others).
+(function(){
+  var root = document.documentElement, nav = document.querySelector("nav"), M = window.motion;
+  var ctl = document.createElement("span");
+  ctl.className = "motion-ctl"; ctl.setAttribute("role", "group"); ctl.setAttribute("aria-label", "Motion");
+  ctl.innerHTML = '<span aria-hidden="true">[ motion:</span> <button type="button" data-m="full">full</button><span aria-hidden="true">|</span><button type="button" data-m="reduced">reduced</button> <span aria-hidden="true">]</span>';
+  nav.appendChild(ctl);
+  var raf = 0;
+  function measureNav(){
+    nav.style.height = "";
+    var h = Math.ceil(nav.getBoundingClientRect().height - 1e-6);
+    nav.style.height = h + "px";
+    root.style.setProperty("--nav-h", h + "px");
+    root.style.setProperty("--nav-height", (h + 16) + "px");
+  }
+  measureNav();
+  function queue(){ cancelAnimationFrame(raf); raf = requestAnimationFrame(measureNav); }
+  addEventListener("resize", queue);
+  addEventListener("load", measureNav);
+})();
+</script>
 
 <main>
   <section id="hero">
@@ -354,6 +401,7 @@
   </section>
 
   <section id="contact">
+    <div class="pg">
     <p class="prompt">root@neo:~$ <b>./connect --to julian</b></p>
     <h2>Contact</h2>
     <ul>
@@ -361,9 +409,10 @@
       <li>LinkedIn: <a href="https://www.linkedin.com/in/julianmariacastro/" rel="noopener">linkedin.com/in/<wbr>julianmariacastro</a></li>
       <li>GitHub: <a href="https://github.com/JulianCastro130" rel="noopener">github.com/<wbr>JulianCastro130</a></li>
     </ul>
+    </div>
+    <footer>Wake up, recruiter… the Matrix has you. <span class="cursor" aria-hidden="true"></span></footer>
   </section>
 
-  <footer>Wake up, recruiter… the Matrix has you. <span class="cursor" aria-hidden="true"></span></footer>
 </main>
 
 <script>
@@ -372,14 +421,7 @@
   var reduce = M.reduced();
   var typingTimer, rainTimer;
   var nav = document.querySelector("nav");
-  function measureNav(){
-    document.documentElement.style.setProperty("--nav-height", (nav.getBoundingClientRect().height + 16) + "px");
-  }
-  // motion control: [ motion: full | reduced ]
-  var ctl = document.createElement("span");
-  ctl.className = "motion-ctl"; ctl.setAttribute("role", "group"); ctl.setAttribute("aria-label", "Motion");
-  ctl.innerHTML = '<span aria-hidden="true">[ motion:</span> <button type="button" data-m="full">full</button><span aria-hidden="true">|</span><button type="button" data-m="reduced">reduced</button> <span aria-hidden="true">]</span>';
-  nav.appendChild(ctl);
+  var ctl = nav.querySelector(".motion-ctl");
   function syncCtl(){
     Array.prototype.forEach.call(ctl.querySelectorAll("button"), function(b){
       b.setAttribute("aria-pressed", String((b.getAttribute("data-m") === "reduced") === M.reduced()));
@@ -387,9 +429,6 @@
   }
   ctl.addEventListener("click", function(e){ var b = e.target.closest("button"); if (b) M.set(b.getAttribute("data-m")); });
   M.onChange(syncCtl); syncCtl();
-  measureNav();
-  if (window.ResizeObserver) new ResizeObserver(measureNav).observe(nav);
-  else addEventListener("resize", measureNav);
 
   // Typed role line
   var lines = ["Mid-Level MuleSoft Developer & RPA Specialist","Full Stack Web Developer","API-led integration · Core banking · AI agents"];
@@ -615,7 +654,7 @@
       var io = new IntersectionObserver(function(entries){
         entries.forEach(function(e){ e.target.classList.toggle("offscreen", !e.isIntersecting); });
       }, {rootMargin: "100% 0px 100% 0px"});
-      Array.prototype.forEach.call(document.querySelectorAll("main > section, main > footer"), function(s){ io.observe(s); });
+      Array.prototype.forEach.call(document.querySelectorAll("main > section"), function(s){ io.observe(s); });
     }
     // let the rain settle after the intro
     setTimeout(function(){ document.querySelectorAll("#rain,#rain3d").forEach(function(r){ r.style.opacity = ""; }); }, 1200);
