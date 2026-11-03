@@ -18,6 +18,8 @@
   var motionQ = matchMedia("(prefers-reduced-motion: reduce)");
   function reduce(){ return motionQ.matches; }
   function now(){ return performance.now(); }
+  // pinch-zoomed: panning must stay fully native
+  function zoomed(){ return !!(window.visualViewport && window.visualViewport.scale > 1.01); }
   try { history.scrollRestoration = "manual"; } catch (e) {}
 
   var st = document.createElement("style");
@@ -30,7 +32,7 @@
     var vh = innerHeight, navH = nav.getBoundingClientRect().height, avail = vh - navH;
     var max = Math.max(0, doc.scrollHeight - vh);
     function clamp(y){ return Math.min(max, Math.max(0, y)); }
-    return stops.map(function(s){
+    return stops.map(function(s, idx){
       var top = Infinity, bottom = -Infinity;
       s.els.forEach(function(el){
         var r = el.getBoundingClientRect();
@@ -39,6 +41,7 @@
       var h = bottom - top, lo, hi;
       if (h <= avail) lo = hi = clamp(top - navH - (avail - h) / 2);
       else { lo = clamp(top - navH - PAD); hi = Math.max(lo, clamp(bottom - vh + PAD)); }
+      if (idx === 0) { hi = hi > lo ? hi : 0; lo = 0; }   // first stop always starts at the very top
       return {lo: lo, hi: hi, tall: hi > lo, s: s};
     });
   }
@@ -115,7 +118,7 @@
   function lock(d, abs){ locked = true; lockDir = d; minAbs = abs; acc = 0; }
 
   addEventListener("wheel", function(e){
-    if (e.ctrlKey || e.defaultPrevented) return;
+    if (e.ctrlKey || e.defaultPrevented || zoomed()) return;
     var dx = e.deltaX, dy = e.deltaY;
     if (!dy || Math.abs(dx) > Math.abs(dy)) return;
     dy *= e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? innerHeight : 1;
@@ -145,14 +148,14 @@
   // ---- touch ----
   var touch = null;
   addEventListener("touchstart", function(e){
-    if (e.touches.length !== 1) { touch = null; return; }
+    if (e.touches.length !== 1 || zoomed()) { touch = null; return; }
     cancelTween();
     touch = {y: e.touches[0].clientY, mode: "", dy: 0};
   }, {passive: true});
   addEventListener("touchmove", function(e){
-    if (!touch || e.touches.length !== 1) { touch = null; return; }
+    if (!touch || e.touches.length !== 1 || zoomed()) { touch = null; return; }
     touch.dy = touch.y - e.touches[0].clientY;
-    if (!touch.mode && Math.abs(touch.dy) > 6) {
+    if (!touch.mode && touch.dy !== 0) {   // decide on the very first move, while it is still cancelable
       var d = touch.dy > 0 ? 1 : -1, dec = decide(d, scrollY, layout());
       touch.mode = dec && !dec.native ? "step" : "native";
     }

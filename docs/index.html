@@ -391,8 +391,8 @@
       items.forEach(function(it){ it.span.textContent = it.text; it.span.style.visibility = ""; it.done = true; });
     });
     // section arrival replay (called by stepscroll.js): flicker + decode once per section, on first arrival
-    var replayed = [], replayGen = 0;
-    addEventListener("beforeprint", function(){ replayGen++; items.forEach(function(it){ it.rdone = true; }); });
+    var replayed = [], replayGen = 0, active = 0;
+    addEventListener("beforeprint", function(){ replayGen++; active = 0; items.forEach(function(it){ it.rdone = true; }); main.removeAttribute("aria-busy"); });
     window.sectionReplay = function(sec){
       if (replayed.indexOf(sec) >= 0) return;
       replayed.push(sec);
@@ -419,7 +419,7 @@
           {opacity:1, filter:"brightness(1)", offset:1}
         ], {duration: 800, delay: Math.min(ey, 900) * .5 + Math.random() * 250, fill: "backwards", easing: "linear"});
       });
-      main.setAttribute("aria-busy", "true");
+      main.setAttribute("aria-busy", "true"); active++;
       var t0 = performance.now(), last = 0;
       (function frame(now){
         if (gen !== replayGen) return;
@@ -440,7 +440,7 @@
           });
         } else alive = 1;
         if (alive) requestAnimationFrame(frame);
-        else if (items.every(function(it){ return it.done; })) main.removeAttribute("aria-busy");
+        else if (--active <= 0 && items.every(function(it){ return it.done; })) main.removeAttribute("aria-busy");
       })(t0);
     };
     done();                       // reveal <main>; every text node is hidden or scrambled
