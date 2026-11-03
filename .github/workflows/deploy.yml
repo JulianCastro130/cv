@@ -3,7 +3,7 @@ name: Deploy CV
 on:
   push:
     branches: [master, main]
-    paths: ["site/**", ".github/workflows/deploy.yml"]
+    paths: ["docs/**", ".github/workflows/deploy.yml"]
   workflow_dispatch:
 
 permissions:
@@ -21,11 +21,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: No placeholders left
-        run: "! grep -rn 'YOUR-' site/"
+        run: "! grep -rn 'YOUR-' docs/"
       - name: Validate HTML
         run: |
           pip install --quiet html5lib
-          python -c "import html5lib,sys; p=html5lib.HTMLParser(strict=True); p.parse(open('site/index.html',encoding='utf-8')); print('ok')"
+          python -c "import html5lib,sys; p=html5lib.HTMLParser(strict=True); p.parse(open('docs/index.html',encoding='utf-8')); print('ok')"
 
   deploy:
     needs: check
@@ -38,6 +38,6 @@ jobs:
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: site
+          path: docs
       - id: deployment
         uses: actions/deploy-pages@v4
