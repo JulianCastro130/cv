@@ -177,74 +177,56 @@
     html{--fs:clamp(17px,.6vw + 11px,20px);--fs-sm:calc(var(--fs)*.86)}
     body{font-size:var(--fs)}
     nav{font-size:var(--fs-sm);padding:14px 24px;gap:8px 30px}
-    main{max-width:min(1500px,100%);padding:0 clamp(24px,3vw,56px) var(--bar-gap)}
-    main>section{--fs-sm:max(14px,calc(var(--fs)*.86));font-size:var(--fs);padding:clamp(20px,3.4vh,44px) clamp(28px,3.4vw,64px)}
-    #hero{--fs:clamp(16px,min(1.2vw,2.3vh),24px)}
-    #about{--fs:clamp(17px,min(1.8vw,3.1vh),32px)}
-    #experience{--fs:clamp(14px,min(1.25vw,2.15vh),20px)}
-    #certs{--fs:clamp(17px,min(1.9vw,3.4vh),34px)}
-    #skills{--fs:clamp(15px,min(1.55vw,2.85vh),30px)}
-    #contact{--fs:clamp(16px,min(1.55vw,2.9vh),24px)}
+    /* one centered reading column; every section is a vertical stack (only the nav bar, terminal rows and inline tags are horizontal) */
+    main{max-width:min(1000px,100%);padding:0 0 var(--bar-gap)}
+    main>section{--fs-sm:max(14px,calc(var(--fs)*.86));font-size:var(--fs);padding:clamp(20px,3.4vh,44px) clamp(28px,3.6vw,56px)}
+    #hero{--fs:clamp(15px,2.05vh,24px);padding-top:clamp(12px,2vh,28px);padding-bottom:clamp(12px,2vh,28px)}
+    #about{--fs:clamp(17px,3.05vh,29px)}
+    #experience{--fs:clamp(14px,min(1.4vw,1.95vh),20px);line-height:1.28;padding:clamp(12px,2vh,28px) clamp(20px,2.6vw,36px)}
+    #certs{--fs:clamp(17px,3.05vh,30px)}
+    #skills{--fs:clamp(15px,2vh,24px)}
+    #contact{--fs:clamp(16px,3.2vh,28px)}
     footer{margin-top:1em;font-size:var(--fs-sm)}
     .prompt,.when,.tech,.tag,.skill-row .k{font-size:var(--fs-sm)}
     .prompt{margin-bottom:.9em}
     h2{font-size:1.45em;margin-bottom:.8em}
     .job h3{font-size:1.14em}
     .tag{padding:.15em .75em}
-    .btn{padding:.65em 1.4em}
-    .meta{font-size:1em;margin-top:.6em;text-wrap:balance}
+    .btn{padding:.6em 1.4em}
+    .meta{font-size:1em;margin-top:.5em}
     li{margin:.35em 0;padding-left:1.4em}
     .tech{margin-top:.8em}
-    /* hero: name, role, meta, CTA on the left; terminal-style summary on the right */
-    #hero{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);grid-template-rows:repeat(5,auto);
-      column-gap:clamp(40px,5vw,80px);align-content:center;justify-content:normal}
-    #hero>*{grid-column:1}
-    #hero>.term{grid-column:2;grid-row:1/span 5;align-self:center}
-    h1{font-size:clamp(72px,8vw,132px);line-height:.94;margin:4px 0 8px}
-    .role{font-size:clamp(18px,1.35vw,24px)}
-    .cta{margin-top:22px}
-    .term{display:block;border:1px solid var(--faint);font-size:var(--fs-sm)}
-    .term-bar{padding:10px 20px;border-bottom:1px solid var(--faint);color:var(--dim)}
+    /* hero: prompt, name, role, meta, buttons (stacked), then the terminal summary */
+    h1{font-size:calc(var(--fs)*3.8);line-height:1;margin:.05em 0 .1em}
+    .role{font-size:1.15em;margin:.1em 0}
+    .cta{flex-direction:column;align-items:flex-start;gap:.5em;margin-top:.7em}
+    .term{display:block;border:1px solid var(--faint);margin-top:.9em;font-size:var(--fs-sm)}
+    .term-bar{padding:.5em 1em;border-bottom:1px solid var(--faint);color:var(--dim)}
     .term-bar b{color:var(--fg);font-weight:400}
-    .term-body{padding:20px 24px 14px}
-    .tl{margin:7px 0;display:grid;grid-template-columns:6.2em minmax(0,1fr);gap:0 14px}
+    .term-body{padding:.6em 1em .3em}
+    .tl{margin:.15em 0;display:grid;grid-template-columns:6.2em minmax(0,1fr);gap:0 14px}
     .tl .tk{color:var(--dim)}
-    .term .tags{margin:16px 0 6px}
-    /* about: two columns */
-    #about{display:grid;grid-template-columns:1fr 1fr;column-gap:3em;align-content:center}
-    #about>.prompt,#about>h2{grid-column:1/-1}
-    #about>p{margin:0}
-    /* experience: three unequal columns (CloudGaia has the most text), one page, nothing cut */
-    #experience{display:grid;grid-template-columns:minmax(0,1.8fr) minmax(0,1fr) minmax(0,.8fr);gap:.6em 1em;align-content:center;line-height:1.38}
-    #experience>.prompt,#experience>h2{grid-column:1/-1}
-    #experience>.prompt{margin-bottom:-.2em}
-    #experience>h2{margin-bottom:0}
-    #experience>.job{margin:0;border:1px solid var(--faint);padding:.75em 1em;grid-row:3}
-    #experience>.job:nth-of-type(1){grid-column:1}
-    #experience>.job:nth-of-type(2){grid-column:2}
-    #experience>.job:nth-of-type(3){grid-column:3}
-    #experience li{margin:.2em 0}
-    #experience .tech{margin-top:.5em}
-    /* certs: Certifications | Education */
-    #certs{display:grid;grid-template-columns:1fr 1fr;column-gap:3.5em;align-content:center}
-    #certs>.prompt{grid-column:1/-1}
-    #certs>h2{margin-top:0!important;margin-bottom:.6em}
-    #certs>ul{margin-top:0}
-    #certs>h2:nth-of-type(1),#certs>ul:nth-of-type(1){grid-column:1}
-    #certs>h2:nth-of-type(2),#certs>ul:nth-of-type(2){grid-column:2}
-    #certs>h2:nth-of-type(1){grid-row:2}
-    #certs>ul:nth-of-type(1){grid-row:3}
-    #certs>h2:nth-of-type(2){grid-row:2}
-    #certs>ul:nth-of-type(2){grid-row:3}
-    /* skills: grid of rows */
-    #skills{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.4em 2.2em;align-content:center}
-    #skills>.prompt,#skills>h2{grid-column:1/-1}
-    .skill-row{margin:.7em 0}
-    /* contact: three cards across */
-    #contact ul{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1.2em;margin:.4em 0 0}
-    #contact li{margin:0;border:1px solid var(--faint);padding:1.6em .8em 1.6em 2.3em}
-    #contact li::before{left:.9em;top:1.6em}
-    #contact li a{font-size:.9em;display:block}
+    .term .tags{margin:.5em 0 .3em}
+    #about>p{margin:0 0 .9em}
+    /* experience: three jobs stacked, flat blocks, header stacked (title, then dates) */
+    #experience>.prompt{margin-bottom:0}
+    #experience h2{margin-bottom:.25em;font-size:1.25em}
+    .job{margin:0 0 .5em;padding-top:.4em;border-top:1px solid var(--faint)}
+    .job:last-child{margin-bottom:0}
+    .job header{flex-direction:column;align-items:flex-start;gap:0;margin-bottom:.2em}
+    #experience li{margin:.06em 0}
+    #experience ul{margin:.2em 0}
+    #experience .tech{margin-top:.25em}
+    /* certs: Certifications, then Education */
+    #certs h2:nth-of-type(2){margin-top:.8em!important}
+    #certs>ul{margin:0 0 .4em}
+    /* skills: one block per row (label, tags below) */
+    .skill-row{margin:.55em 0}
+    /* contact: three blocks stacked */
+    #contact ul{display:flex;flex-direction:column;gap:.7em;margin:.3em 0 0}
+    #contact li{margin:0;border:1px solid var(--faint);padding:.8em .8em .8em 2.3em}
+    #contact li::before{left:.9em;top:.8em}
+    #contact li a{font-size:.9em}
   }
   @media print{
     html.opening nav,html.opening main{opacity:1;visibility:visible;animation:none}
