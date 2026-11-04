@@ -180,11 +180,11 @@
     /* one centered reading column; every section is a vertical stack (only the nav bar, terminal rows and inline tags are horizontal) */
     main{max-width:min(1000px,100%);padding:0 0 var(--bar-gap)}
     main>section{--fs-sm:max(14px,calc(var(--fs)*.86));font-size:var(--fs);padding:clamp(20px,3.4vh,44px) clamp(28px,3.6vw,56px)}
-    #hero{--fs:clamp(15px,2.05vh,24px);padding-top:clamp(12px,2vh,28px);padding-bottom:clamp(12px,2vh,28px)}
+    #hero{--fs:clamp(16px,2.05vh,24px);padding-top:clamp(12px,2vh,28px);padding-bottom:clamp(12px,2vh,28px)}
     #about{--fs:clamp(17px,3.05vh,29px)}
-    #experience{--fs:clamp(14px,min(1.4vw,1.95vh),20px);line-height:1.28;padding:clamp(12px,2vh,28px) clamp(20px,2.6vw,36px)}
+    #experience{--fs:clamp(16px,min(1.4vw,1.6vh),20px);--fs-sm:max(16px,calc(var(--fs)*.86));line-height:1.4;padding:clamp(12px,2vh,28px) clamp(20px,2.6vw,36px)}
     #certs{--fs:clamp(17px,3.05vh,30px)}
-    #skills{--fs:clamp(15px,2vh,24px)}
+    #skills{--fs:clamp(16px,2vh,24px)}
     #contact{--fs:clamp(16px,3.2vh,28px)}
     footer{margin-top:1em;font-size:var(--fs-sm)}
     .prompt,.when,.tech,.tag,.skill-row .k{font-size:var(--fs-sm)}
@@ -210,23 +210,36 @@
     #about>p{margin:0 0 .9em}
     /* experience: three jobs stacked, flat blocks, header stacked (title, then dates) */
     #experience>.prompt{margin-bottom:0}
-    #experience h2{margin-bottom:.25em;font-size:1.25em}
-    .job{margin:0 0 .5em;padding-top:.4em;border-top:1px solid var(--faint)}
+    #experience h2{margin-bottom:.4em;font-size:1.25em}
+    .job{margin:0 0 1em;padding-top:.6em;border-top:1px solid var(--faint)}
     .job:last-child{margin-bottom:0}
-    .job header{flex-direction:column;align-items:flex-start;gap:0;margin-bottom:.2em}
-    #experience li{margin:.06em 0}
-    #experience ul{margin:.2em 0}
-    #experience .tech{margin-top:.25em}
+    .job header{flex-direction:column;align-items:flex-start;gap:0;margin-bottom:.3em}
+    #experience li{margin:.2em 0}
+    #experience ul{margin:.3em 0}
+    #experience .tech{margin-top:.4em}
     /* certs: Certifications, then Education */
     #certs h2:nth-of-type(2){margin-top:.8em!important}
     #certs>ul{margin:0 0 .4em}
     /* skills: one block per row (label, tags below) */
     .skill-row{margin:.55em 0}
+    #skills{padding-top:clamp(12px,2vh,28px);padding-bottom:clamp(12px,2vh,28px)}
+    #skills h2{margin-bottom:.6em}
     /* contact: three blocks stacked */
     #contact ul{display:flex;flex-direction:column;gap:.7em;margin:.3em 0 0}
     #contact li{margin:0;border:1px solid var(--faint);padding:.8em .8em .8em 2.3em}
     #contact li::before{left:.9em;top:.8em}
     #contact li a{font-size:.9em}
+  }
+  /* Experience is 16px minimum. Compact spacing only where the whole section fits one page; shorter windows go tall with normal spacing */
+  @media screen and (min-width:1024px) and (min-height:900px){
+    #experience{line-height:1.28}
+    #experience h2{margin-bottom:.25em}
+    .job{margin:0 0 .5em;padding-top:.4em}
+    .job:last-child{margin-bottom:0}
+    .job header{margin-bottom:.2em}
+    #experience li{margin:.06em 0}
+    #experience ul{margin:.2em 0}
+    #experience .tech{margin-top:.25em}
   }
   @media print{
     html.opening nav,html.opening main{opacity:1;visibility:visible;animation:none}
